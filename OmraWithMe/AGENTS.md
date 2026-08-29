@@ -22,7 +22,7 @@
 | `python-jose` | 3.3.0 | JWT |
 | `sqlalchemy` | 2.0+ | OK |
 
-Virtual env: `C:\TArek_Backup\Documents\SelfLearning\MyProject\.venv\`
+Virtual env: `..\.venv\` (one level above this folder; create with `python -m venv ..\.venv`)
 
 ## 3. Repository layout
 
@@ -58,9 +58,10 @@ OmraWithMe/                     ← THIS folder, the FastAPI app
 **Always use `--app-dir`** because the project root is one level up:
 
 ```powershell
-& "C:\TArek_Backup\Documents\SelfLearning\MyProject\.venv\Scripts\python.exe" `
+# Run from the repo root (the folder that contains OmraWithMe/)
+& ".\.venv\Scripts\python.exe" `
     -m uvicorn main:app `
-    --app-dir "C:\TArek_Backup\Documents\SelfLearning\MyProject\OmraWithMe" `
+    --app-dir ".\OmraWithMe" `
     --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -271,7 +272,8 @@ Migrations: ad-hoc `ALTER TABLE` in `database.py::init_db()` (silent fail = colu
 
 ```powershell
 # Start server
-& "C:\TArek_Backup\Documents\SelfLearning\MyProject\.venv\Scripts\python.exe" -m uvicorn main:app --app-dir "C:\TArek_Backup\Documents\SelfLearning\MyProject\OmraWithMe" --host 127.0.0.1 --port 8000 --reload
+# From the repo root:
+& ".\.venv\Scripts\python.exe" -m uvicorn main:app --app-dir ".\OmraWithMe" --host 127.0.0.1 --port 8000 --reload
 
 # Rotate dev JWT secret (forces everyone to re-login)
 Remove-Item OmraWithMe\.dev_secret
