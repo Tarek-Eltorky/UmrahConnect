@@ -21,6 +21,7 @@ Then open http://127.0.0.1:8000. Run the test suite with `python -m pytest tests
 
 ## Key documents
 
+- **[GO-LIVE.md](GO-LIVE.md)** — the launch runbook: everything needed to take this repo live once a server host is chosen (deploy, SMTP, admin, backups, Android release, acceptance checklist).
 - **[OmraWithMe/DEPLOYMENT.md](OmraWithMe/DEPLOYMENT.md)** — production checklist: environment variables (secret key, SMTP, public URL), HTTPS, backups, monitoring, admin setup.
 - **[OmraWithMe/AGENTS.md](OmraWithMe/AGENTS.md)** — architecture, conventions, endpoint map, and the full changelog.
 - **[OmraWithMe_Android/README.md](OmraWithMe_Android/README.md)** — Android build, release signing, and the Google Play console checklist.
