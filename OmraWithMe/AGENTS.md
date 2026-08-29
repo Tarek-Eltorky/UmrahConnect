@@ -91,7 +91,7 @@ templates.TemplateResponse(request, "page.html", {"x": 1})
 In production: must set `OMRA_ENV=production` and `OMRA_SECRET_KEY=<random>`, or the app refuses to start.
 
 ### Cache busting
-Static asset URLs in templates use a numeric `?v=N` suffix (current: `style.css?v=16`, `app.js?v=20`, `i18n.js?v=10`; service worker `umrah-connect-v12`). When you change a static asset, **bump the number in every template**:
+Static asset URLs in templates use a numeric `?v=N` suffix (current: `style.css?v=16`, `app.js?v=20`, `i18n.js?v=11`; service worker `umrah-connect-v13`). When you change a static asset, **bump the number in every template**:
 
 ```powershell
 $utf8 = [System.Text.UTF8Encoding]::new($false)
@@ -239,6 +239,7 @@ Migrations: ad-hoc `ALTER TABLE` in `database.py::init_db()` (silent fail = colu
 - `GET /api/users/{id}/profile` now requires login (401 anonymous) — name/photo/Facebook identity are member-only. `/user/{id}` page shows a sign-in invitation instead of fetching.
 - Frontend: index cards + detail header/contact show a 🔒 "Sign in to see the organizer" link when `creator_name` is empty; comments section shows "Sign in to read the {n} comment(s)"; unverified users see "Verify your email to see contact info". New i18n keys: `login_see_host`, `login_view_comments`, `login_view_profile`, `verify_see_contact`.
 - **Tests: 134 passing** (`TestAnonymousPrivacyGating`, and `test_comments.py`'s `_detail_comments` now authenticates). Config version `1.3.1`.
+- Branding: the former Arabic app name was removed per the owner's request — the brand is **"Umrah Connect" in both languages** (i18n `app_name`, legal pages, verification email, Android offline page). Do not reintroduce an Arabic brand name without the owner's sign-off.
 - Android v1.4 (versionCode 5): targetSdk 35, predictive back, edge-to-edge insets, release minify+shrink, signing config scaffold from gradle.properties, release build fails without `OMRA_RELEASE_SERVER_URL`, logcat console logging DEBUG-only, allowBackup=false.
 
 🔄 **Pending / nice-to-have**:

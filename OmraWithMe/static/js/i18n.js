@@ -485,7 +485,7 @@ window.I18N = (() => {
             title_verify: 'Verify Email',
         },
         ar: {
-            app_name: 'رفقة عمرة',
+            app_name: 'Umrah Connect',
             tagline: 'شارك رحلة عمرتك',
             bismillah: 'بسم الله الرحمن الرحيم',
             // Nav
@@ -578,7 +578,7 @@ window.I18N = (() => {
             login_subtitle: 'سجل دخولك للمتابعة',
             login_button: 'تسجيل الدخول',
             register_title: 'أنشئ حسابك',
-            register_subtitle: 'انضم إلى مجتمع رفقة عمرة',
+            register_subtitle: 'انضم إلى مجتمع Umrah Connect',
             register_button: 'إنشاء حساب',
             forgot_password: 'نسيت كلمة المرور؟',
             no_account: 'ليس لديك حساب؟',
@@ -933,7 +933,7 @@ window.I18N = (() => {
             hiw_s2_t: 'اطلب الانضمام وتواصل',
             hiw_s2_d: 'أرسل طلب انضمام، وتحدث بأمان داخل التطبيق، وتعرّف على رفقاء سفرك.',
             hiw_s3_t: 'احجزوا معًا وادفعوا لمقدمي الخدمة مباشرة',
-            hiw_s3_d: 'اتفقوا على التفاصيل، ثم ادفعوا للفنادق وشركات الطيران مباشرة — «رفقة عمرة» لا تتعامل مع الأموال أبدًا.',
+            hiw_s3_d: 'اتفقوا على التفاصيل، ثم ادفعوا للفنادق وشركات الطيران مباشرة — Umrah Connect لا تتعامل مع الأموال أبدًا.',
             hiw_note: 'مجاني ١٠٠٪. لا مدفوعات عبر المنصة إطلاقًا.',
 
             // After a request is accepted

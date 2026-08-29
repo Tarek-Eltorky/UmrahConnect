@@ -1,4 +1,4 @@
-# Umrah Connect — رفقة عمرة
+# Umrah Connect
 
 A free platform that helps Egyptian pilgrims find trusted companions, share Umrah trips, and coordinate safely — with no payments ever handled by the platform.
 

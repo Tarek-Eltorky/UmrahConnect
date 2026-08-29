@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
         boolean ar = "ar".equals(java.util.Locale.getDefault().getLanguage());
         String dir   = ar ? "rtl" : "ltr";
         String lang  = ar ? "ar" : "en";
-        String title = ar ? "رفقة عمرة" : "Umrah Connect";
+        String title = "Umrah Connect";
         String body  = ar ? "لا يوجد اتصال بالإنترنت.<br>يرجى التحقق من الشبكة وإعادة المحاولة."
                            : "No internet connection.<br>Please check your network and try again.";
         String retry = ar ? "إعادة المحاولة" : "Try Again";

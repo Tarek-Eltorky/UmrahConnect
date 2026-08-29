@@ -406,7 +406,7 @@ def _send_verification_email(request: Request, user: User) -> bool:
         f"<p>The link is valid for 48 hours. If you did not create this account, you can ignore this email.</p>"
         f"<hr>"
         f"<p dir='rtl'>السلام عليكم {user.full_name}،</p>"
-        f"<p dir='rtl'>أهلًا بك في «رفقة عمرة»! يُرجى تأكيد بريدك الإلكتروني بالضغط على الرابط أعلاه. الرابط صالح لمدة 48 ساعة.</p>"
+        f"<p dir='rtl'>أهلًا بك في Umrah Connect! يُرجى تأكيد بريدك الإلكتروني بالضغط على الرابط أعلاه. الرابط صالح لمدة 48 ساعة.</p>"
     )
     return send_email(user.email, "Confirm your email – Umrah Connect", html)
 
