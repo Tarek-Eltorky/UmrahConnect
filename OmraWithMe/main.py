@@ -564,7 +564,9 @@ def _mask_last2(value: Optional[str]) -> str:
 @app.get("/api/users/{user_id}/profile")
 async def get_user_public_profile(
     user_id: int,
-    current_user: Optional[User] = Depends(get_current_user),
+    # Member profiles are for members: name, photo, and Facebook identity must
+    # never be readable by anonymous visitors/scrapers.
+    current_user: User = Depends(get_current_user_required),
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.id == user_id).first()
@@ -867,8 +869,9 @@ async def get_announcements(
             "max_participants": a.max_participants,
             "spots_filled": a.spots_filled,
             "spots_available": a.max_participants - a.spots_filled,
-            "creator_id": a.creator.id if a.creator else None,
-            "creator_name": a.creator.full_name if a.creator else "Unknown",
+            # Creator identity requires login — anonymous visitors see trip facts only
+            "creator_id": (a.creator.id if (a.creator and current_user) else None),
+            "creator_name": (a.creator.full_name if (a.creator and current_user) else ""),
             # creator_facebook hidden from listing — only revealed on detail page after auth
             "created_at": a.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
@@ -892,25 +895,29 @@ async def get_announcement(
         raise HTTPException(status_code=404, detail="Announcement not found")
     
     creator = announcement.creator
-    
-    # Get comments with authors in one query
-    comments = (
-        db.query(Comment)
-        .options(joinedload(Comment.author))
-        .filter(Comment.announcement_id == announcement_id)
-        .order_by(Comment.created_at.desc())
-        .all()
-    )
+    contact_ok = current_user is not None and (current_user.is_verified or not VERIFICATION_REQUIRED)
+
+    # Comments are user-generated content with author identities — login required.
+    # Anonymous visitors get an empty list plus the count so the UI can invite sign-in.
+    comments_count = db.query(Comment).filter(Comment.announcement_id == announcement_id).count()
     comments_list = []
-    for c in comments:
-        comments_list.append({
-            "id": c.id,
-            "content": c.content,
-            "is_suggestion": c.is_suggestion,
-            "author_id": c.author_id,
-            "author_name": c.author.full_name if c.author else "Unknown",
-            "created_at": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
-        })
+    if current_user:
+        comments = (
+            db.query(Comment)
+            .options(joinedload(Comment.author))
+            .filter(Comment.announcement_id == announcement_id)
+            .order_by(Comment.created_at.desc())
+            .all()
+        )
+        for c in comments:
+            comments_list.append({
+                "id": c.id,
+                "content": c.content,
+                "is_suggestion": c.is_suggestion,
+                "author_id": c.author_id,
+                "author_name": c.author.full_name if c.author else "Unknown",
+                "created_at": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+            })
     
     duration = None
     if announcement.departure_date and announcement.return_date:
@@ -942,15 +949,18 @@ async def get_announcement(
         "max_participants": announcement.max_participants,
         "spots_filled": announcement.spots_filled,
         "spots_available": announcement.max_participants - announcement.spots_filled,
-        "creator_id": creator.id if creator else None,
-        "creator_name": creator.full_name if creator else "Unknown",
-        # Contact info only for logged-in users — never expose phone numbers to anonymous scrapers
-        "creator_facebook": (creator.facebook_name if (creator and current_user) else ""),
-        "creator_facebook_id": (creator.facebook_id if (creator and current_user) else ""),
-        "creator_phone": (creator.phone if (creator and current_user) else ""),
+        # Creator identity requires login; contact details additionally require a
+        # verified email (when verification is enforced) — blocks scrape-by-registration.
+        "creator_id": (creator.id if (creator and current_user) else None),
+        "creator_name": (creator.full_name if (creator and current_user) else ""),
+        "creator_facebook": (creator.facebook_name if (creator and contact_ok) else ""),
+        "creator_facebook_id": (creator.facebook_id if (creator and contact_ok) else ""),
+        "creator_phone": (creator.phone if (creator and contact_ok) else ""),
+        "contact_visible": bool(creator and contact_ok),
         "is_active": announcement.is_active,
         "created_at": announcement.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "comments": comments_list
+        "comments": comments_list,
+        "comments_count": comments_count
     }
 
 @app.post("/api/join-requests")
@@ -1878,7 +1888,7 @@ async def get_config():
         "app_name": "Umrah Connect",
         "default_locale": "en",
         "supported_locales": ["en", "ar"],
-        "version": "1.3.0",
+        "version": "1.3.1",
     }
 
 

@@ -91,7 +91,7 @@ templates.TemplateResponse(request, "page.html", {"x": 1})
 In production: must set `OMRA_ENV=production` and `OMRA_SECRET_KEY=<random>`, or the app refuses to start.
 
 ### Cache busting
-Static asset URLs in templates use a numeric `?v=N` suffix (current: `style.css?v=16`, `app.js?v=20`, `i18n.js?v=9`; service worker `umrah-connect-v11`). When you change a static asset, **bump the number in every template**:
+Static asset URLs in templates use a numeric `?v=N` suffix (current: `style.css?v=16`, `app.js?v=20`, `i18n.js?v=10`; service worker `umrah-connect-v12`). When you change a static asset, **bump the number in every template**:
 
 ```powershell
 $utf8 = [System.Text.UTF8Encoding]::new($false)
@@ -232,6 +232,13 @@ Migrations: ad-hoc `ALTER TABLE` in `database.py::init_db()` (silent fail = colu
 - **Account deletion UI** (Play policy): Danger Zone on /profile → `POST /api/me/delete {password}`.
 - **New i18n keys** (~45) in both EN/AR — see i18n.js; locale-aware `UI.formatDate/formatCurrency/formatRelative`.
 - **Tests: 128 passing** (`tests/test_v13_features.py` covers all of the above). Config version `1.3.0`.
+
+✅ **Anonymous-privacy pass v1.3.1 (Aug 29, 2026)** — user data is never exposed to visitors who are not signed in:
+- `GET /api/announcements` + `GET /api/announcements/{id}`: `creator_id` is `null` and `creator_name` is `""` for anonymous callers. Trip facts (title, dates, hotels, budget, spots, description) stay public for SEO/sharing.
+- Detail endpoint: `comments` is `[]` for anonymous callers; new `comments_count` field is always present so the UI can invite sign-in. New `contact_visible` boolean: contact fields (`creator_phone`/`creator_facebook*`) now require a **verified** email when `VERIFICATION_REQUIRED` is on (blocks scrape-by-registration), otherwise any logged-in user.
+- `GET /api/users/{id}/profile` now requires login (401 anonymous) — name/photo/Facebook identity are member-only. `/user/{id}` page shows a sign-in invitation instead of fetching.
+- Frontend: index cards + detail header/contact show a 🔒 "Sign in to see the organizer" link when `creator_name` is empty; comments section shows "Sign in to read the {n} comment(s)"; unverified users see "Verify your email to see contact info". New i18n keys: `login_see_host`, `login_view_comments`, `login_view_profile`, `verify_see_contact`.
+- **Tests: 134 passing** (`TestAnonymousPrivacyGating`, and `test_comments.py`'s `_detail_comments` now authenticates). Config version `1.3.1`.
 - Android v1.4 (versionCode 5): targetSdk 35, predictive back, edge-to-edge insets, release minify+shrink, signing config scaffold from gradle.properties, release build fails without `OMRA_RELEASE_SERVER_URL`, logcat console logging DEBUG-only, allowBackup=false.
 
 🔄 **Pending / nice-to-have**:

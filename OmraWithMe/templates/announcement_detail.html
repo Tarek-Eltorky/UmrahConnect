@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script src="/static/js/i18n.js?v=10"></script><script src="/static/js/app.js?v=20"></script>
     <script>
         const announcementId = {{ announcement_id }};
         let announcementData = null;
@@ -110,11 +110,14 @@
                             </div>
                             <h1 style="margin: 0.3rem 0 0.25rem; line-height:1.25;">${UI.esc(data.title)}</h1>
                             <p style="opacity:0.9; margin-top:0.25rem;">
+                                ${data.creator_name ? `
                                 <i class="fas fa-user"></i>
                                 <a href="/user/${data.creator_id}" style="color:inherit; text-decoration:none; font-weight:600;"
                                    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                                     ${UI.esc(data.creator_name)}
-                                </a>
+                                </a>` : `
+                                <i class="fas fa-lock"></i>
+                                <a href="/login" style="color:inherit; font-weight:600;">${t('login_see_host')}</a>`}
                             </p>
                         </div>
                         <div class="card-body">
@@ -222,15 +225,17 @@
                             <!-- Contact -->
                             <div>
                                 <p class="section-title"><i class="fas fa-address-card"></i> ${t('contact_host')}</p>
-                                <p><i class="fas fa-user"></i> <a href="/user/${data.creator_id}" style="color:var(--primary-color); font-weight:600; text-decoration:none;">${UI.esc(data.creator_name)}</a></p>
+                                ${data.creator_name ? `<p><i class="fas fa-user"></i> <a href="/user/${data.creator_id}" style="color:var(--primary-color); font-weight:600; text-decoration:none;">${UI.esc(data.creator_name)}</a></p>` : ''}
                                 ${data.creator_facebook ? `<p><a href="https://facebook.com/${encodeURIComponent(data.creator_facebook_id || data.creator_facebook)}" target="_blank" rel="noopener noreferrer" class="link-facebook"><i class="fab fa-facebook"></i> ${UI.esc(data.creator_facebook)}</a></p>` : ''}
-                                ${API.isLoggedIn() ? `
+                                ${!API.isLoggedIn() ? `
+                                    <p style="color:var(--text-secondary);"><i class="fas fa-lock"></i> <a href="/login">${t('login_see_contact')}</a></p>
+                                ` : data.contact_visible ? `
                                     <p><i class="fas fa-phone"></i> ${UI.esc(data.creator_phone) || t('not_provided')}</p>
                                     ${whatsapp ? `
                                     <a href="${whatsapp}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp mt-2">
                                         <i class="fab fa-whatsapp"></i> ${t('chat_whatsapp')}
                                     </a>` : ''}
-                                ` : `<p style="color:var(--text-secondary);"><i class="fas fa-lock"></i> <a href="/login">${t('login_see_contact')}</a></p>`}
+                                ` : `<p style="color:var(--text-secondary);"><i class="fas fa-envelope-circle-check"></i> ${t('verify_see_contact')}</p>`}
                             </div>
                         </div>
                     </div>
@@ -260,7 +265,12 @@
                                 `<p style="color:var(--text-secondary);"><a href="/login">${t('login_to_comment')}</a></p>`}
 
                             <div id="commentsContainer">
-                                ${data.comments.length === 0 ?
+                                ${!API.isLoggedIn() && data.comments_count > 0 ?
+                                    `<div class="empty-state" style="padding:1.5rem;">
+                                        <i class="fas fa-lock"></i>
+                                        <p><a href="/login">${t('login_view_comments').replace('{n}', data.comments_count)}</a></p>
+                                    </div>` :
+                                data.comments.length === 0 ?
                                     `<div class="empty-state" style="padding:1.5rem;">
                                         <i class="fas fa-comments"></i>
                                         <p>${t('no_comments_alt')}</p>

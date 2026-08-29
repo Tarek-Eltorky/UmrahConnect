@@ -538,4 +538,68 @@ class TestIsoTimestampsAndSeo:
         assert r.status_code == 200
 
     def test_config_version_bumped(self, client):
-        assert client.get("/api/config").json()["version"] == "1.3.0"
+        assert client.get("/api/config").json()["version"] == "1.3.1"
+
+
+class TestAnonymousPrivacyGating:
+    """v1.3.1 — anonymous visitors see trip facts only, never user identities."""
+
+    def test_listing_hides_creator_from_anonymous(self, client, make_user, make_trip):
+        headers, _ = make_user()
+        make_trip(headers)
+        items = client.get("/api/announcements").json()["items"]
+        assert items
+        assert all(a["creator_id"] is None and a["creator_name"] == "" for a in items)
+
+    def test_listing_shows_creator_to_logged_in(self, client, make_user, make_trip):
+        headers, owner = make_user()
+        trip_id = make_trip(headers)
+        items = client.get("/api/announcements", headers=headers).json()["items"]
+        mine = next(a for a in items if a["id"] == trip_id)
+        assert mine["creator_id"] == owner["id"]
+        assert mine["creator_name"] == owner["full_name"]
+
+    def test_detail_hides_creator_and_comments_from_anonymous(self, client, make_user, make_trip):
+        headers, _ = make_user()
+        trip_id = make_trip(headers)
+        client.post("/api/comments",
+                    json={"announcement_id": trip_id, "content": "First!"},
+                    headers=headers)
+        d = client.get(f"/api/announcements/{trip_id}").json()
+        assert d["creator_id"] is None
+        assert d["creator_name"] == ""
+        assert d["creator_phone"] == "" and d["creator_facebook"] == ""
+        assert d["comments"] == []
+        assert d["comments_count"] == 1
+        # Trip facts stay public for sharing/SEO
+        assert d["title"] and d["departure_date"] and d["budget_per_person"]
+
+    def test_detail_shows_comments_to_logged_in(self, client, make_user, make_trip):
+        headers, _ = make_user()
+        trip_id = make_trip(headers)
+        client.post("/api/comments",
+                    json={"announcement_id": trip_id, "content": "Visible"},
+                    headers=headers)
+        viewer_headers, _ = make_user()
+        d = client.get(f"/api/announcements/{trip_id}", headers=viewer_headers).json()
+        assert d["comments_count"] == 1
+        assert d["comments"][0]["content"] == "Visible"
+        assert d["contact_visible"] is True  # verification not enforced in tests
+
+    def test_detail_contact_needs_verified_email_when_enforced(
+        self, client, make_user, make_trip, monkeypatch
+    ):
+        headers, _ = make_user()
+        trip_id = make_trip(headers)
+        viewer_headers, _ = make_user()
+        monkeypatch.setattr(main, "VERIFICATION_REQUIRED", True)
+        d = client.get(f"/api/announcements/{trip_id}", headers=viewer_headers).json()
+        # Identity is fine for a logged-in user, but contact waits for verification
+        assert d["creator_name"] != ""
+        assert d["creator_phone"] == "" and d["creator_facebook"] == ""
+        assert d["contact_visible"] is False
+
+    def test_user_profile_requires_login(self, client, make_user):
+        _, user = make_user()
+        r = client.get(f"/api/users/{user['id']}/profile")
+        assert r.status_code == 401

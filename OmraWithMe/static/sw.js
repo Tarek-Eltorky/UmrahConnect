@@ -1,5 +1,5 @@
 // Bump cache version on any deployment to force refresh
-const CACHE_NAME = 'umrah-connect-v11';
+const CACHE_NAME = 'umrah-connect-v12';
 const STATIC_ASSETS = [
   '/',
   '/static/css/style.css',

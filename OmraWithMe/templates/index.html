@@ -139,7 +139,7 @@
         <div id="pagination" class="pagination"></div>
     </div>
 
-    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script src="/static/js/i18n.js?v=10"></script><script src="/static/js/app.js?v=20"></script>
     <script>
         let currentPage = 1;
         let searchTimeout = null;
@@ -248,11 +248,13 @@
                             </div>
                             <h3 style="margin: 0.2rem 0 0.3rem; line-height:1.3;">${UI.esc(a.title)}</h3>
                             <p style="opacity:0.8; font-size:0.85rem; margin:0;">
+                                ${a.creator_name ? `
                                 <i class="fas fa-user"></i>
                                 <a href="/user/${a.creator_id}" style="color:inherit; text-decoration:none;"
                                    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                                     ${UI.esc(a.creator_name)}
-                                </a>
+                                </a>` : `
+                                <i class="fas fa-lock"></i> ${t('login_see_host')}`}
                             </p>
                         </div>
                         <div class="announcement-body">

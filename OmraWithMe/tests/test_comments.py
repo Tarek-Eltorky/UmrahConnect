@@ -9,8 +9,9 @@ def _comment(client, headers, trip_id, content="Nice trip!"):
     return r.json()["id"]
 
 
-def _detail_comments(client, trip_id):
-    return client.get(f"/api/announcements/{trip_id}").json()["comments"]
+def _detail_comments(client, trip_id, headers):
+    # Comments require login since v1.3.1 — anonymous callers get an empty list.
+    return client.get(f"/api/announcements/{trip_id}", headers=headers).json()["comments"]
 
 
 class TestComments:
@@ -20,7 +21,7 @@ class TestComments:
         commenter_headers, commenter = make_user()
         cid = _comment(client, commenter_headers, trip_id, "Is breakfast included?")
 
-        comments = _detail_comments(client, trip_id)
+        comments = _detail_comments(client, trip_id, owner_headers)
         c = next(x for x in comments if x["id"] == cid)
         assert c["content"] == "Is breakfast included?"
         assert c["author_id"] == commenter["id"]
@@ -41,7 +42,7 @@ class TestComments:
         r = client.put(f"/api/comments/{cid}", json={"content": "Edited text"},
                        headers=commenter_headers)
         assert r.status_code == 200
-        c = next(x for x in _detail_comments(client, trip_id) if x["id"] == cid)
+        c = next(x for x in _detail_comments(client, trip_id, owner_headers) if x["id"] == cid)
         assert c["content"] == "Edited text"
 
     def test_edit_by_other_user_403(self, client, make_user, make_trip):
@@ -63,7 +64,7 @@ class TestComments:
 
         r = client.delete(f"/api/comments/{cid}", headers=commenter_headers)
         assert r.status_code == 200
-        assert all(x["id"] != cid for x in _detail_comments(client, trip_id))
+        assert all(x["id"] != cid for x in _detail_comments(client, trip_id, owner_headers))
 
     def test_delete_by_trip_owner_allowed(self, client, make_user, make_trip):
         owner_headers, _ = make_user()
@@ -73,7 +74,7 @@ class TestComments:
 
         r = client.delete(f"/api/comments/{cid}", headers=owner_headers)
         assert r.status_code == 200
-        assert all(x["id"] != cid for x in _detail_comments(client, trip_id))
+        assert all(x["id"] != cid for x in _detail_comments(client, trip_id, owner_headers))
 
     def test_delete_by_unrelated_user_403(self, client, make_user, make_trip):
         owner_headers, _ = make_user()
@@ -84,4 +85,4 @@ class TestComments:
         stranger_headers, _ = make_user()
         r = client.delete(f"/api/comments/{cid}", headers=stranger_headers)
         assert r.status_code == 403
-        assert any(x["id"] == cid for x in _detail_comments(client, trip_id))
+        assert any(x["id"] == cid for x in _detail_comments(client, trip_id, owner_headers))
