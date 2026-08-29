@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="description" content="Find Umrah travel companions and share accommodations. Connect with fellow pilgrims for an affordable, blessed journey.">
+    <link rel="canonical" href="{{ public_url }}/">
+    <meta property="og:title" content="Umrah Connect — Share Your Umrah Journey">
+    <meta property="og:description" content="Find Umrah travel companions and share accommodations.">
+    <meta property="og:url" content="{{ public_url }}/">
+    <meta property="og:image" content="{{ public_url }}/static/images/icon-512.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Umrah Connect — Share Your Umrah Journey">
+    <meta name="twitter:description" content="Find Umrah travel companions and share accommodations.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>Umrah Connect - Share Your Umrah Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <section class="hero">
+        <p class="hero-bismillah" lang="ar" dir="rtl" data-i18n="bismillah">بسم الله الرحمن الرحيم</p>
+        <h1 class="hero-title" data-i18n="hero_title">Share Your Umrah Journey</h1>
+        <p class="hero-tagline" data-i18n="hero_tagline">Connect with fellow pilgrims, share accommodations, and make your blessed journey more affordable</p>
+        <a href="/register" class="btn btn-secondary" data-i18n="hero_cta">Start Your Journey</a>
+    </section>
+
+    <section class="hiw-section" aria-labelledby="hiwTitle">
+        <h2 id="hiwTitle" data-i18n="hiw_title">How it works</h2>
+        <div class="hiw-grid">
+            <div class="hiw-step">
+                <i class="fas fa-route" aria-hidden="true"></i>
+                <h3 data-i18n="hiw_s1_t">Find a trip</h3>
+                <p data-i18n="hiw_s1_d">Browse trips from fellow pilgrims and filter by city, dates, and budget.</p>
+            </div>
+            <div class="hiw-step">
+                <i class="fas fa-comments" aria-hidden="true"></i>
+                <h3 data-i18n="hiw_s2_t">Connect</h3>
+                <p data-i18n="hiw_s2_d">Request to join and chat with the trip organizer to agree on the details.</p>
+            </div>
+            <div class="hiw-step">
+                <i class="fas fa-handshake" aria-hidden="true"></i>
+                <h3 data-i18n="hiw_s3_t">Travel together</h3>
+                <p data-i18n="hiw_s3_d">Share accommodation and costs, and make your blessed journey more affordable.</p>
+            </div>
+        </div>
+        <p class="hiw-note"><i class="fas fa-shield-heart" aria-hidden="true"></i> <span data-i18n="hiw_note">Umrah Connect helps you find companions — always verify details with the organizer before you book.</span></p>
+    </section>
+
+    <div class="container" id="main">
+        <!-- Search & Filter Bar -->
+        <div class="search-bar">
+            <div class="search-row">
+                <div class="form-group" style="flex:2; min-width:200px;">
+                    <label for="filterKeyword"><i class="fas fa-search" aria-hidden="true"></i> <span data-i18n="filter_search">Search</span></label>
+                    <input type="text" id="filterKeyword" data-i18n-placeholder="filter_search_placeholder" placeholder="Trip name, hotel, description..." oninput="debouncedSearch()" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="filterLocation"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <span data-i18n="filter_location">Location</span></label>
+                    <select id="filterLocation" onchange="loadAnnouncements()" aria-label="Filter by location">
+                        <option value="all" data-i18n="filter_all_locations">All Locations</option>
+                        <option value="Makkah" data-i18n="filter_makkah">Makkah</option>
+                        <option value="Madinah" data-i18n="filter_madinah">Madinah</option>
+                        <option value="Makkah/Madinah" data-i18n="filter_both">Makkah &amp; Madinah</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterDateFrom"><i class="fas fa-calendar" aria-hidden="true"></i> <span data-i18n="filter_depart_from">Depart From</span></label>
+                    <input type="date" id="filterDateFrom" onchange="loadAnnouncements()" aria-label="Departure from date">
+                </div>
+                <div class="form-group">
+                    <label for="filterDateTo"><i class="fas fa-calendar-check" aria-hidden="true"></i> <span data-i18n="filter_depart_to">Depart To</span></label>
+                    <input type="date" id="filterDateTo" onchange="loadAnnouncements()" aria-label="Departure to date">
+                </div>
+            </div>
+            <div class="search-row" style="margin-top:0.75rem;">
+                <div class="form-group">
+                    <label for="filterMinBudget"><i class="fas fa-money-bill" aria-hidden="true"></i> <span data-i18n="filter_min_budget">Min Budget (EGP)</span></label>
+                    <input type="number" id="filterMinBudget" placeholder="e.g. 10000" inputmode="numeric" min="0" max="1000000" oninput="debouncedSearch()" aria-label="Min Budget (EGP)" data-i18n-aria-label="filter_min_budget">
+                </div>
+                <div class="form-group">
+                    <label for="filterMaxBudget"><i class="fas fa-money-bill-wave" aria-hidden="true"></i> <span data-i18n="filter_max_budget">Max Budget (EGP)</span></label>
+                    <input type="number" id="filterMaxBudget" placeholder="e.g. 80000" inputmode="numeric" min="0" max="1000000" oninput="debouncedSearch()" aria-label="Max Budget (EGP)" data-i18n-aria-label="filter_max_budget">
+                </div>
+                <div class="form-group">
+                    <label for="filterSortBy"><i class="fas fa-sort" aria-hidden="true"></i> <span data-i18n="filter_sort_by">Sort By</span></label>
+                    <select id="filterSortBy" onchange="loadAnnouncements()" aria-label="Sort">
+                        <option value="created_at" data-i18n="sort_newest">Newest First</option>
+                        <option value="departure_date" data-i18n="sort_departure">Departure Date</option>
+                        <option value="budget_per_person" data-i18n="sort_price_asc">Price: Low to High</option>
+                    </select>
+                </div>
+                <div class="form-group" style="align-self:flex-end;">
+                    <button class="btn btn-outline" onclick="clearFilters()" style="width:100%;">
+                        <i class="fas fa-times" aria-hidden="true"></i> <span data-i18n="clear_filters">Clear Filters</span>
+                    </button>
+                </div>
+                <div class="form-group" style="align-self:flex-end; display:none;" id="favFilterWrap">
+                    <button type="button" class="fav-filter-chip" id="favFilterChip" onclick="toggleFavFilter()">
+                        <i class="fas fa-heart" aria-hidden="true"></i> <span data-i18n="fav_filter">Saved trips only</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p id="resultsCount" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:0.5rem;"></p>
+
+        <!-- Announcements Grid -->
+        <div id="announcementsGrid" class="announcements-grid">
+            <div class="loading" style="grid-column:1/-1;">
+                <div class="spinner"></div>
+                <p><span data-i18n="loading">Loading trips...</span></p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        let currentPage = 1;
+        let searchTimeout = null;
+        let favOnly = false;
+
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { currentPage = 1; loadAnnouncements(); }, 400);
+        }
+
+        function toggleFavFilter() {
+            favOnly = !favOnly;
+            document.getElementById('favFilterChip').classList.toggle('active', favOnly);
+            currentPage = 1;
+            loadAnnouncements();
+        }
+
+        async function toggleFavorite(id, btn) {
+            const nowFav = await Favorites.toggle(id);
+            if (nowFav === null) return;
+            btn.classList.toggle('active', nowFav);
+            btn.querySelector('i').className = nowFav ? 'fas fa-heart' : 'far fa-heart';
+            if (favOnly && !nowFav) loadAnnouncements(); // removed from the saved-only view
+        }
+
+        function clearFilters() {
+            ['filterKeyword','filterMinBudget','filterMaxBudget','filterDateFrom','filterDateTo'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('filterLocation').value = 'all';
+            document.getElementById('filterSortBy').value = 'created_at';
+            favOnly = false;
+            document.getElementById('favFilterChip').classList.remove('active');
+            currentPage = 1;
+            loadAnnouncements();
+        }
+
+        async function loadAnnouncements(page) {
+            if (page !== undefined) currentPage = page;
+            const t = (k) => (window.I18N ? I18N.t(k) : k);
+            const grid = document.getElementById('announcementsGrid');
+            grid.innerHTML = `<div class="loading" style="grid-column:1/-1;"><div class="spinner"></div><p>${t('loading')}</p></div>`;
+
+            try {
+                const location  = document.getElementById('filterLocation').value;
+                const minBudget = document.getElementById('filterMinBudget').value;
+                const maxBudget = document.getElementById('filterMaxBudget').value;
+                const keyword   = document.getElementById('filterKeyword').value.trim();
+                const dateFrom  = document.getElementById('filterDateFrom').value;
+                const dateTo    = document.getElementById('filterDateTo').value;
+                const sortBy    = document.getElementById('filterSortBy').value;
+                const sortOrder = sortBy === 'budget_per_person' ? 'asc' : 'desc';
+
+                let url = `/api/announcements?page=${currentPage}&page_size=12&sort_by=${sortBy}&sort_order=${sortOrder}`;
+                if (location !== 'all') url += `&location=${encodeURIComponent(location)}`;
+                if (minBudget) url += `&min_budget=${minBudget}`;
+                if (maxBudget) url += `&max_budget=${maxBudget}`;
+                if (keyword)   url += `&keyword=${encodeURIComponent(keyword)}`;
+                if (dateFrom)  url += `&departure_from=${dateFrom}`;
+                if (dateTo)    url += `&departure_to=${dateTo}`;
+                if (favOnly)   url += `&favorites_only=true`;
+
+                const [resp] = await Promise.all([API.get(url), Favorites.load()]);
+                const announcements = resp.items;
+                const total = resp.total;
+                const totalPages = resp.total_pages;
+
+                document.getElementById('resultsCount').textContent =
+                    total === 0 ? '' : `${total} ${total === 1 ? t('trip_found') : t('trips_found')}`;
+
+                if (announcements.length === 0) {
+                    grid.innerHTML = favOnly ? `
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <i class="far fa-heart"></i>
+                            <h3>${t('no_saved_trips_title')}</h3>
+                            <p>${t('no_saved_trips_subtitle')}</p>
+                        </div>` : `
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <i class="fas fa-mosque"></i>
+                            <h3>${t('no_trips_title')}</h3>
+                            <p>${t('no_trips_subtitle')}</p>
+                            <a href="/create-announcement" class="btn btn-primary mt-2">${t('create_trip')}</a>
+                        </div>`;
+                    document.getElementById('pagination').innerHTML = '';
+                    return;
+                }
+
+                grid.innerHTML = announcements.map(a => {
+                    const pct = a.max_participants > 0 ? Math.round((a.spots_filled / a.max_participants) * 100) : 0;
+                    const barColor = pct >= 90 ? 'var(--danger)' : pct >= 60 ? 'var(--warning)' : 'var(--primary-color)';
+                    const locIcon = a.location === 'Madinah' ? '🕌' : a.location === 'Makkah' ? '🕋' : '🕋🕌';
+                    const nightsLabel = a.duration_days === 1 ? t('night') : t('nights');
+                    const spotsLabel = a.spots_available === 1 ? t('spot_left') : `${a.spots_available} ${t('spots_left')}`;
+                    const isFav = Favorites.has(a.id);
+                    return `
+                    <div class="announcement-card" style="position:relative;">
+                        ${API.isLoggedIn() ? `
+                        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${a.id}, this)"
+                                title="${isFav ? t('fav_saved') : t('fav_save')}" aria-label="${isFav ? t('fav_saved') : t('fav_save')}">
+                            <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                        </button>` : ''}
+                        <div class="announcement-header">
+                            <div class="card-header-top">
+                                <span class="location-badge">${locIcon} ${UI.esc(a.location)}</span>
+                                ${a.duration_days ? `<span class="duration-badge"><i class="fas fa-moon"></i> ${a.duration_days} ${nightsLabel}</span>` : ''}
+                            </div>
+                            <h3 style="margin: 0.2rem 0 0.3rem; line-height:1.3;">${UI.esc(a.title)}</h3>
+                            <p style="opacity:0.8; font-size:0.85rem; margin:0;">
+                                <i class="fas fa-user"></i>
+                                <a href="/user/${a.creator_id}" style="color:inherit; text-decoration:none;"
+                                   onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    ${UI.esc(a.creator_name)}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="announcement-body">
+                            <div class="announcement-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${UI.formatDate(a.departure_date)} <span class="date-arrow" aria-hidden="true">&rarr;</span> ${UI.formatDate(a.return_date)}
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hotel"></i>
+                                    ${a.location === 'Makkah/Madinah' && a.hotel_name_madinah
+                                        ? `<div>
+                                            <div>🕋 <strong>${t('filter_makkah')}:</strong> ${UI.esc(a.hotel_name)} <span class="stars">${UI.renderStars(a.hotel_stars)}</span></div>
+                                            <div style="margin-top:2px">🕌 <strong>${t('filter_madinah')}:</strong> ${UI.esc(a.hotel_name_madinah)} <span class="stars">${UI.renderStars(a.hotel_stars_madinah)}</span></div>
+                                           </div>`
+                                        : `${UI.esc(a.hotel_name)} <span class="stars">${UI.renderStars(a.hotel_stars)}</span>`
+                                    }
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-bed"></i> ${UI.esc(a.room_type)} &bull; ${a.people_per_room}/${t('room_per_room')}
+                                </div>
+                            </div>
+
+                            <div class="budget-display">
+                                <div class="budget-amount">${UI.formatCurrency(a.budget_per_person)}</div>
+                                <div class="budget-label">${t('per_person')}</div>
+                            </div>
+
+                            <div class="flex-gap mb-2">
+                                ${a.includes_transport ? `<span class="badge badge-accepted"><i class="fas fa-bus mr-1"></i>${t('transport')}</span>` : ''}
+                                ${a.includes_meals    ? `<span class="badge badge-accepted"><i class="fas fa-utensils mr-1"></i>${t('meals')}</span>` : ''}
+                            </div>
+
+                            <div class="spots-indicator">
+                                <span style="font-size:0.82rem; white-space:nowrap;">
+                                    ${spotsLabel}
+                                </span>
+                                <div class="spots-bar">
+                                    <div class="spots-fill" style="width:${pct}%; background:${barColor};"></div>
+                                </div>
+                                <span style="font-size:0.82rem; white-space:nowrap;">${a.max_participants} ${t('spots_total')}</span>
+                            </div>
+
+                            <a href="/announcement/${a.id}" class="btn btn-primary" style="width:100%; margin-top:0.75rem;">
+                                ${t('view_details_join')}
+                            </a>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                renderPagination(currentPage, totalPages);
+
+            } catch (error) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>${t('error_loading_trips')}</h3>
+                        <p>${UI.esc(error.message)}</p>
+                        <button class="btn btn-outline" onclick="loadAnnouncements()" data-i18n="retry">Retry</button>
+                    </div>`;
+            }
+        }
+
+        function renderPagination(page, totalPages) {
+            const t = (k) => (window.I18N ? I18N.t(k) : k);
+            const pg = document.getElementById('pagination');
+            if (totalPages <= 1) { pg.innerHTML = ''; return; }
+            let html = `<button onclick="loadAnnouncements(${page-1})" ${page===1?'disabled':''}>&#8249; ${t('pagination_prev')}</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - page) <= 2) {
+                    html += `<button onclick="loadAnnouncements(${i})" class="${i===page?'active':''}">${i}</button>`;
+                } else if (Math.abs(i - page) === 3) {
+                    html += `<span style="padding:0.5rem;">…</span>`;
+                }
+            }
+            html += `<button onclick="loadAnnouncements(${page+1})" ${page===totalPages?'disabled':''}>${t('pagination_next')} &#8250;</button>`;
+            pg.innerHTML = html;
+        }
+
+        // Re-render the list whenever the user changes language
+        document.addEventListener('localechange', () => loadAnnouncements(currentPage));
+
+        if (API.isLoggedIn()) document.getElementById('favFilterWrap').style.display = '';
+        loadAnnouncements();
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

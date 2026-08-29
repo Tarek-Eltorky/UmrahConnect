@@ -1,0 +1,86 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Server URLs can be overridden via gradle.properties:
+//   OMRA_DEBUG_SERVER_URL=http://192.168.1.42:8000   (your LAN IP for real devices)
+//   OMRA_RELEASE_SERVER_URL=https://omra.example.com
+def debugServerUrl        = project.hasProperty('OMRA_DEBUG_SERVER_URL')   ? project.OMRA_DEBUG_SERVER_URL   : 'http://10.0.2.2:8000'
+def releaseUrlProvided    = project.hasProperty('OMRA_RELEASE_SERVER_URL')
+def releaseServerUrl      = releaseUrlProvided ? project.OMRA_RELEASE_SERVER_URL : 'https://your-production-server.com'
+
+// Release signing is configured entirely from gradle.properties (never commit secrets):
+//   OMRA_KEYSTORE_FILE=C:/path/to/umrah-upload.keystore
+//   OMRA_KEYSTORE_PASSWORD=...
+//   OMRA_KEY_ALIAS=umrah
+//   OMRA_KEY_PASSWORD=...
+def hasReleaseSigning = ['OMRA_KEYSTORE_FILE', 'OMRA_KEYSTORE_PASSWORD', 'OMRA_KEY_ALIAS', 'OMRA_KEY_PASSWORD']
+        .every { project.hasProperty(it) }
+
+android {
+    namespace 'com.umrahconnect.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.umrahconnect.app"
+        minSdk 24
+        targetSdk 35
+        versionCode 5
+        versionName "1.4"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(project.OMRA_KEYSTORE_FILE)
+                storePassword project.OMRA_KEYSTORE_PASSWORD
+                keyAlias project.OMRA_KEY_ALIAS
+                keyPassword project.OMRA_KEY_PASSWORD
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            buildConfigField "String", "SERVER_URL", "\"${debugServerUrl}\""
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            buildConfigField "String", "SERVER_URL", "\"${releaseServerUrl}\""
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
+}
+
+// Fail fast: never ship a release APK/AAB pointing at the placeholder URL.
+// Debug builds are unaffected.
+tasks.whenTaskAdded { task ->
+    if ((task.name == 'assembleRelease' || task.name == 'bundleRelease') && !releaseUrlProvided) {
+        task.doFirst {
+            throw new GradleException("Set OMRA_RELEASE_SERVER_URL in gradle.properties before building a release")
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+}

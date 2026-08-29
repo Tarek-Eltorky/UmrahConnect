@@ -1,0 +1,1025 @@
+// ─── i18n module: English / Arabic with RTL support ──────────────────────
+// Translation keys cover the static UI (buttons, labels, navigation, headings).
+// User-generated content (trip descriptions, messages) is shown as typed.
+
+window.I18N = (() => {
+    const RTL_LOCALES = new Set(['ar']);
+
+    const dict = {
+        en: {
+            app_name: 'Umrah Connect',
+            tagline: 'Share Your Umrah Journey',
+            bismillah: 'In the name of Allah, the Most Gracious, the Most Merciful',
+            // Nav
+            nav_browse: 'Browse Trips',
+            nav_dashboard: 'Dashboard',
+            nav_create: '+ Create Trip',
+            nav_requests: 'My Requests',
+            nav_home: 'Home',
+            nav_login: 'Login',
+            nav_register: 'Register',
+            nav_profile: 'My Profile',
+            nav_logout: 'Logout',
+            nav_settings: 'Settings',
+            // Hero
+            hero_title: 'Share Your Umrah Journey',
+            hero_tagline: 'Connect with fellow pilgrims, share accommodations, and make your blessed journey more affordable',
+            hero_cta: 'Start Your Journey',
+            // Filters
+            filter_search: 'Search',
+            filter_search_placeholder: 'Trip name, hotel, description...',
+            filter_location: 'Location',
+            filter_all_locations: 'All Locations',
+            filter_makkah: 'Makkah',
+            filter_madinah: 'Madinah',
+            filter_both: 'Makkah & Madinah',
+            filter_depart_from: 'Depart From',
+            filter_depart_to: 'Depart To',
+            filter_min_budget: 'Min Budget (EGP)',
+            filter_max_budget: 'Max Budget (EGP)',
+            filter_sort_by: 'Sort By',
+            sort_newest: 'Newest First',
+            sort_departure: 'Departure Date',
+            sort_price_asc: 'Price: Low to High',
+            clear_filters: 'Clear Filters',
+            // Trip card / detail
+            sign_in_to_see_host: 'Sign in to see host',
+            sign_in_to_see_member: 'Sign in to see member',
+            spots_available: 'spots available',
+            spots_filled: 'spots filled',
+            spots_left: 'spots left',
+            spot_left: 'spot left',
+            spots_total: 'total',
+            view_details: 'View Details',
+            view_details_join: 'View Details & Join',
+            request_to_join: 'Request to Join',
+            edit_trip: 'Edit Trip',
+            deactivate: 'Deactivate',
+            activate: 'Activate',
+            duration: 'Duration',
+            days: 'days',
+            nights: 'nights',
+            night: 'night',
+            budget_per_person: 'Budget / person',
+            per_person: 'per person',
+            hotel: 'Hotel',
+            room_type: 'Room',
+            room_per_room: 'per room',
+            includes_transport: 'Transport included',
+            includes_meals: 'Meals included',
+            transport: 'Transport',
+            meals: 'Meals',
+            departure: 'Departure',
+            return_date: 'Return',
+            description: 'Description',
+            requirements: 'Requirements',
+            posted_by: 'Posted by',
+            trips_found: 'trips found',
+            trip_found: 'trip found',
+            no_trips_title: 'No trips found',
+            no_trips_subtitle: 'Try adjusting your filters or be the first to create a trip!',
+            create_trip: 'Create Trip',
+            error_loading_trips: 'Error loading trips',
+            pagination_prev: 'Prev',
+            pagination_next: 'Next',
+            // Forms
+            form_email: 'Email',
+            form_password: 'Password',
+            form_full_name: 'Full name',
+            form_phone: 'Phone number',
+            form_national_id: 'National ID',
+            form_passport: 'Passport number',
+            form_passport_expiry: 'Passport expiry',
+            form_facebook: 'Facebook profile',
+            form_submit: 'Submit',
+            form_save: 'Save',
+            form_cancel: 'Cancel',
+            form_send: 'Send',
+            // Auth
+            login_title: 'Welcome back',
+            login_subtitle: 'Sign in to continue',
+            login_button: 'Sign in',
+            register_title: 'Create your account',
+            register_subtitle: 'Join the Umrah Connect community',
+            register_button: 'Create account',
+            forgot_password: 'Forgot password?',
+            no_account: "Don't have an account?",
+            have_account: 'Already have an account?',
+            reset_password_title: 'Reset your password',
+            reset_password_email_label: 'Enter your email and we will email you a reset link',
+            reset_password_new: 'New password',
+            reset_password_confirm: 'Confirm password',
+            reset_password_button: 'Reset password',
+            // Account
+            account_delete: 'Delete account',
+            account_delete_warn: 'This will permanently anonymize your data. Type your password to confirm.',
+            block_user: 'Block user',
+            unblock_user: 'Unblock user',
+            report_user: 'Report user',
+            blocked_users: 'Blocked users',
+            // Chat / requests
+            chat_send_placeholder: 'Type a message…',
+            chat_empty: 'No messages yet. Start the conversation 👋',
+            accept: 'Accept',
+            reject: 'Reject',
+            pending: 'Pending',
+            accepted: 'Accepted',
+            rejected: 'Rejected',
+            // Misc
+            language: 'Language',
+            loading: 'Loading…',
+            no_trips: 'No trips match your filters',
+            new_version_available: 'A new version is available',
+            refresh: 'Refresh',
+            error_generic: 'Something went wrong',
+            confirm: 'Confirm',
+            yes: 'Yes',
+            no: 'No',
+            session_expired: 'Your session has expired. Please sign in again.',
+
+            // Page titles
+            title_dashboard: 'Dashboard',
+            title_create_trip: 'Create New Omra Trip',
+            title_edit_trip: 'Edit Trip',
+            title_my_requests: 'My Join Requests',
+            title_profile: 'My Profile',
+            title_trip_detail: 'Trip Details',
+            title_user_profile: 'User Profile',
+
+            // Dashboard
+            welcome_back: 'Welcome back',
+            tab_my_announcements: 'My Trips',
+            tab_incoming_requests: 'Incoming Requests',
+            inactive_banner: 'INACTIVE — Hidden from search',
+            active_label: 'Active',
+            full_label: 'Full',
+            view_btn: 'View',
+            edit_btn: 'Edit',
+            requests_btn: 'Requests',
+            pending_requests_count: 'pending request(s)',
+            no_announcements_title: 'No trips yet',
+            no_announcements_subtitle: 'Create your first trip announcement to start connecting!',
+            select_trip_first: 'Select a trip from "My Trips" to view its requests',
+            no_requests_for_trip: 'No requests for',
+            requests_appear_here: 'Requests will appear here once people discover your trip.',
+            requests_for: 'Requests for',
+            persons_count: 'person(s)',
+            you_reply: 'Your reply',
+            browse_trips: 'Browse Trips',
+            spots_filled_count: 'filled',
+            spots_filled_of: 'of',
+
+            // Create / Edit announcement
+            section_basic_info: 'Basic Information',
+            section_dates_hotel: 'Dates & Hotel',
+            section_room_budget: 'Room & Budget',
+            section_extras: 'Extras',
+            trip_title_label: 'Trip Title *',
+            trip_title_placeholder: 'e.g. Ramadan Omra Group 2026',
+            location_label: 'Location *',
+            select_location: 'Select location',
+            makkah_only: 'Makkah Only',
+            madinah_only: 'Madinah Only',
+            both_cities: 'Makkah & Madinah',
+            departure_date: 'Departure Date *',
+            return_date_required: 'Return Date *',
+            hotel_name_label: 'Hotel Name *',
+            hotel_name_makkah: 'Makkah Hotel Name *',
+            hotel_name_madinah: 'Madinah Hotel Name *',
+            hotel_stars_label: 'Hotel Stars *',
+            makkah_stay: 'Makkah Stay',
+            madinah_stay: 'Madinah Stay',
+            check_in: 'Check-in *',
+            check_out: 'Check-out *',
+            stars_short: 'Stars',
+            stars_3: '3 Stars',
+            stars_4: '4 Stars',
+            stars_5: '5 Stars',
+            stars_2: '2 Stars',
+            total_trip: 'Total trip',
+            room_type_label: 'Room Type *',
+            room_double: 'Double (2 persons)',
+            room_triple: 'Triple (3 persons)',
+            room_quad: 'Quad (4 persons)',
+            room_single: 'Single (1 person)',
+            people_per_room_label: 'People Per Room *',
+            total_rooms_label: 'Total Rooms Available *',
+            budget_per_person_egp: 'Budget Per Person (EGP) *',
+            max_participants_label: 'Max Participants *',
+            includes_transport_check: 'Includes Transportation',
+            includes_meals_check: 'Includes Meals',
+            description_label: 'Description *',
+            description_placeholder: 'Describe your trip plan, itinerary, what is included...',
+            requirements_optional: 'Requirements (Optional)',
+            requirements_placeholder: 'Any requirements for participants (e.g. families only, sisters only, etc.)',
+            cancel_btn: 'Cancel',
+            create_trip_btn: 'Create Trip Announcement',
+            save_changes_btn: 'Save Changes',
+            creating_btn: 'Creating…',
+            saving_btn: 'Saving…',
+            err_select_location: 'Please select a location',
+            err_fill_city_dates: 'Please fill in all Makkah and Madinah dates',
+            err_makkah_dates: 'Makkah check-out must be after check-in',
+            err_madinah_dates: 'Madinah check-out must be after check-in',
+            err_fill_dates: 'Please fill in departure and return dates',
+            err_return_after_dep: 'Return date must be after departure date',
+            err_max_lt_filled: 'Max participants cannot be less than current spots filled',
+            trip_created: 'Trip created successfully!',
+            trip_updated: 'Trip updated successfully!',
+            trip_full_no_edit: 'This trip is full and can no longer be edited.',
+            not_owner_trip: 'You are not the owner of this trip.',
+            could_not_load_trip: 'Could not load trip',
+            editing_locked: 'editing locked',
+            currently_joined: 'currently {n} joined — cannot reduce below this',
+
+            // Status badges
+            status_pending: 'Pending',
+            status_accepted: 'Accepted',
+            status_rejected: 'Rejected',
+
+            // Trip detail
+            back_to_browse: 'Back to Browse',
+            trip_inactive_notice: 'This trip is currently inactive.',
+            trip_details: 'Trip Details',
+            section_dates: 'Dates',
+            section_hotel: 'Hotel',
+            section_room: 'Room',
+            section_budget: 'Budget',
+            section_includes: 'Includes',
+            section_description: 'Description',
+            section_requirements: 'Requirements',
+            join_now_btn: 'Send Join Request',
+            num_people_req: 'How many people?',
+            your_message: 'Your message',
+            message_placeholder: 'Introduce yourself and explain why you would like to join...',
+            sending: 'Sending…',
+            request_sent: 'Request sent! The trip organizer will respond soon.',
+            already_requested: 'You have already requested to join this trip',
+            cannot_join_own: 'You cannot join your own trip',
+            login_to_join: 'Login to send a join request',
+            comments: 'Comments',
+            add_comment: 'Add a comment',
+            post_comment: 'Post comment',
+            mark_as_suggestion: 'Mark as suggestion',
+            no_comments_yet: 'No comments yet. Be the first to ask a question!',
+            comment_posted: 'Comment posted',
+            suggestion_label: 'Suggestion',
+            // Trip detail (dynamic) — additional
+            dates_label: 'Dates',
+            makkah_label: 'Makkah',
+            madinah_label: 'Madinah',
+            hotel_makkah_label: 'Makkah Hotel',
+            hotel_madinah_label: 'Madinah Hotel',
+            hotel_label_suffix: 'Hotel',
+            rooms_available_label: 'Rooms Available',
+            transport_included: 'Transport Included',
+            meals_included: 'Meals Included',
+            spots_filled_label: 'filled',
+            spot_available_count: 'spot(s) available',
+            manage_trip: 'Manage Trip',
+            full_editing_locked: 'Full • Editing Locked',
+            contact_host: 'Contact Host',
+            not_provided: 'Not provided',
+            chat_whatsapp: 'Chat on WhatsApp',
+            login_to_join_btn: 'Login to Join',
+            login_see_contact: 'Login to see contact info',
+            login_word: 'Login',
+            comments_suggestions: 'Comments & Suggestions',
+            comment_placeholder: 'Ask a question or suggest a change...',
+            post_short: 'Post',
+            login_to_comment: 'Login to post comments',
+            no_comments_alt: 'No comments yet. Be the first to ask or suggest!',
+            back_to_home: 'Back to Home',
+            number_of_people: 'Number of People',
+            message_to_host: 'Message to Host',
+            join_intro_placeholder: 'Introduce yourself, mention any preferences or questions...',
+
+            // My requests
+            my_requests_h: 'My Join Requests',
+            no_my_requests: 'No requests yet',
+            no_my_requests_subtitle: 'Browse available trips and request to join one!',
+            cancel_request: 'Cancel request',
+            confirm_cancel_request: 'Cancel this join request?',
+            request_cancelled: 'Request cancelled.',
+            chat_btn: 'Chat',
+            organizer_reply: 'Organizer reply',
+            organizer: 'Organizer',
+            view_trip_btn: 'View Trip',
+
+            // Profile
+            profile_h: 'My Profile',
+            section_personal_info: 'Personal Information',
+            section_passport_info: 'Passport Information',
+            section_facebook_info: 'Facebook (Optional)',
+            section_change_password: 'Change Password',
+            section_notifications_history: 'Notifications History',
+            section_blocked_users: 'Blocked Users',
+            section_danger_zone: 'Danger Zone',
+            current_password: 'Current password',
+            new_password: 'New password (leave blank to keep)',
+            email_readonly_note: 'Email cannot be changed.',
+            save_profile: 'Save Profile',
+            profile_saved: 'Profile saved successfully',
+            no_notifications_title: 'No notifications yet',
+            no_notifications_subtitle: 'You will see updates here when someone joins your trip or sends a message.',
+            no_blocked_users: 'You have not blocked anyone.',
+            unblock_btn: 'Unblock',
+            delete_account_warning: 'Permanently delete your account. This cannot be undone.',
+            delete_account_btn: 'Delete my account',
+            confirm_delete_account: 'Type your password to permanently delete your account:',
+            account_deleted: 'Your account has been deleted.',
+            notif_new_request: 'New Request',
+            notif_accepted: 'Accepted',
+            notif_rejected: 'Rejected',
+            notif_comment: 'Comment',
+            notif_message: 'Message',
+            notif_other: 'Notification',
+            could_not_load_profile: 'Could not load profile',
+            could_not_load_notifs: 'Could not load notifications',
+            could_not_mark_read: 'Could not mark all read',
+            mark_all_read: 'Mark all read',
+            notifications_word: 'notifications',
+            notification_word: 'notification',
+            unread_word: 'unread',
+
+            // User profile
+            trip_host: 'Trip Host',
+            trips_created_label: 'Trips Created',
+            trips_joined_label: 'Trips Joined',
+            shared_trip_banner: 'You have travelled together — contact details unlocked.',
+            contact_locked_notice: 'Contact details are unlocked only after you share an accepted trip together.',
+            view_facebook: 'View Facebook',
+            member_since: 'Member since',
+            contact_details: 'Contact Details',
+            public_info: 'Public Info',
+            passport_word: 'Passport',
+            exp_label: 'Exp',
+            no_facebook: 'No Facebook linked',
+            profile_not_found: 'Profile not found',
+            shared_trip_banner_alt: "You've travelled together — full contact details are visible.",
+            contact_locked_alt: 'Contact details are only visible after completing a trip together.',
+
+            // Modal / response
+            respond_to_request: 'Respond to Request',
+            optional_response: 'Optional response message',
+            optional_response_placeholder: 'Add a note for the requester (optional)...',
+            accept_request: 'Accept Request',
+            reject_request: 'Reject Request',
+            request_accepted_ok: 'Request accepted successfully!',
+            request_rejected_ok: 'Request rejected.',
+            chat_title: 'Chat',
+
+            // Reset password
+            password_reset_sent: 'If that email exists, a reset link was generated. Check the dev console.',
+            password_reset_success: 'Password reset successfully. You can now login.',
+            password_reset_token_missing: 'Reset token missing or invalid.',
+
+            // Loading buttons
+            sending_request: 'Sending request…',
+            registering: 'Creating account…',
+            signing_in: 'Signing in…',
+
+            // Confirms
+            confirm_deactivate: 'Deactivate this trip? It will be hidden from search.',
+            confirm_activate: 'Activate this trip?',
+            trip_activated: 'Trip activated',
+            trip_deactivated: 'Trip deactivated',
+
+            // Favorites (saved trips)
+            fav_save: 'Save trip',
+            fav_saved: 'Saved',
+            fav_added: 'Trip saved to your favorites',
+            fav_removed: 'Trip removed from your favorites',
+            fav_filter: 'Saved trips only',
+            fav_login_required: 'Sign in to save trips',
+            no_saved_trips_title: 'No saved trips yet',
+            no_saved_trips_subtitle: 'Tap the heart on any trip to save it for later.',
+
+            // Comments edit/delete
+            comment_edit: 'Edit',
+            comment_delete: 'Delete',
+            comment_updated: 'Comment updated',
+            comment_deleted: 'Comment deleted',
+            confirm_delete_comment: 'Delete this comment?',
+
+            // Trip delete
+            delete_trip: 'Delete Trip',
+            confirm_delete_trip: 'Delete this trip permanently? Pending requests will be rejected and joined members will be notified.',
+            trip_deleted: 'Trip deleted',
+
+            // Footer / legal
+            footer_terms: 'Terms of Service',
+            footer_privacy: 'Privacy Policy',
+            footer_safety: 'Safety Tips',
+            footer_rights: 'A free community service for pilgrims.',
+            agree_terms_prefix: 'By creating an account you agree to our',
+            and_word: 'and',
+            title_terms: 'Terms of Service',
+            title_privacy: 'Privacy Policy',
+            title_safety: 'Safety Tips',
+
+            // Errors / connectivity
+            conn_error: 'Connection problem. Please check your internet and try again.',
+            retry: 'Retry',
+
+            // Relative time (rel_fmt is a template: {n} = number, {u} = unit)
+            rel_just_now: 'just now',
+            rel_fmt: '{n}{u}',
+            rel_m: 'm ago',
+            rel_h: 'h ago',
+            rel_d: 'd ago',
+
+            // Notifications dropdown
+            notif_title: 'Notifications',
+            notif_mark_all: 'Mark all read',
+            notif_empty: 'No notifications yet',
+            notif_load_failed: 'Could not load notifications',
+            link_copied: 'Link copied to clipboard',
+
+            // Chat / verification
+            chat_closed: 'This conversation has ended.',
+            verify_banner: 'Please verify your email address — check your inbox for the link.',
+            verify_resend: 'Resend email',
+            verify_sent: 'Verification email sent.',
+            verify_required: 'Please verify your email address first.',
+            verified_label: 'Verified',
+
+            // How it works
+            hiw_title: 'How it works',
+            hiw_s1_t: 'Post or find a trip',
+            hiw_s1_d: 'Create your own Umrah trip or browse trips from fellow pilgrims.',
+            hiw_s2_t: 'Request to join & chat',
+            hiw_s2_d: 'Send a join request, chat safely in the app, and get to know your travel companions.',
+            hiw_s3_t: 'Book together, pay providers directly',
+            hiw_s3_d: 'Agree on details, then pay hotels and airlines directly — Umrah Connect never handles money.',
+            hiw_note: '100% free. No payments through the platform, ever.',
+
+            // After a request is accepted
+            accepted_next_title: "What's next?",
+            accepted_next_1: 'Agree on booking details and payment directly with the organizer.',
+            accepted_next_2: 'Pay only official providers — never send money to individuals.',
+            accepted_next_3: 'Keep receipts and get every booking confirmed in writing.',
+            read_safety: 'Read our safety tips',
+
+            // Contact / documents
+            contact_after_accept: 'Contact details are shown after you accept this request.',
+            id_on_file: 'National ID on file',
+            passport_on_file: 'Passport on file',
+            contact_label: 'Contact',
+
+            // Auth forms
+            show_password: 'Show password',
+            hide_password: 'Hide password',
+            passwords_no_match: 'Passwords do not match',
+            creating_account: 'Creating account...',
+            logging_in: 'Logging in...',
+
+            // Chat
+            chat_no_messages: 'No messages yet. Say hello!',
+
+            // Page titles
+            title_verify: 'Verify Email',
+        },
+        ar: {
+            app_name: 'رفقة عمرة',
+            tagline: 'شارك رحلة عمرتك',
+            bismillah: 'بسم الله الرحمن الرحيم',
+            // Nav
+            nav_browse: 'تصفح الرحلات',
+            nav_dashboard: 'لوحة التحكم',
+            nav_create: '+ إنشاء رحلة',
+            nav_requests: 'طلباتي',
+            nav_home: 'الرئيسية',
+            nav_login: 'تسجيل الدخول',
+            nav_register: 'إنشاء حساب',
+            nav_profile: 'ملفي الشخصي',
+            nav_logout: 'تسجيل الخروج',
+            nav_settings: 'الإعدادات',
+            // Hero
+            hero_title: 'شارك رحلة عمرتك',
+            hero_tagline: 'تواصل مع زملاء المعتمرين، شارك السكن، واجعل رحلتك المباركة أكثر يسرًا',
+            hero_cta: 'ابدأ رحلتك',
+            // Filters
+            filter_search: 'بحث',
+            filter_search_placeholder: 'اسم الرحلة، الفندق، الوصف...',
+            filter_location: 'الوجهة',
+            filter_all_locations: 'كل الوجهات',
+            filter_makkah: 'مكة المكرمة',
+            filter_madinah: 'المدينة المنورة',
+            filter_both: 'مكة والمدينة',
+            filter_depart_from: 'مغادرة من تاريخ',
+            filter_depart_to: 'مغادرة حتى تاريخ',
+            filter_min_budget: 'أقل ميزانية (ج.م)',
+            filter_max_budget: 'أعلى ميزانية (ج.م)',
+            filter_sort_by: 'ترتيب حسب',
+            sort_newest: 'الأحدث أولًا',
+            sort_departure: 'تاريخ المغادرة',
+            sort_price_asc: 'السعر: من الأقل للأعلى',
+            clear_filters: 'مسح الفلاتر',
+            // Trip card / detail
+            sign_in_to_see_host: 'سجّل دخولك لرؤية المنظّم',
+            sign_in_to_see_member: 'سجّل دخولك لرؤية العضو',
+            spots_available: 'أماكن متاحة',
+            spots_filled: 'أماكن محجوزة',
+            spots_left: 'أماكن متبقية',
+            spot_left: 'مكان واحد متبقٍّ',
+            spots_total: 'إجمالي',
+            view_details: 'عرض التفاصيل',
+            view_details_join: 'عرض التفاصيل والانضمام',
+            request_to_join: 'طلب الانضمام',
+            edit_trip: 'تعديل الرحلة',
+            deactivate: 'إيقاف',
+            activate: 'تنشيط',
+            duration: 'المدة',
+            days: 'أيام',
+            nights: 'ليالٍ',
+            night: 'ليلة',
+            budget_per_person: 'الميزانية للشخص',
+            per_person: 'للشخص',
+            hotel: 'الفندق',
+            room_type: 'نوع الغرفة',
+            room_per_room: 'لكل غرفة',
+            includes_transport: 'يشمل المواصلات',
+            includes_meals: 'يشمل الوجبات',
+            transport: 'مواصلات',
+            meals: 'وجبات',
+            departure: 'المغادرة',
+            return_date: 'العودة',
+            description: 'الوصف',
+            requirements: 'الشروط',
+            posted_by: 'نشرها',
+            trips_found: 'رحلة متاحة',
+            trip_found: 'رحلة متاحة',
+            no_trips_title: 'لا توجد رحلات',
+            no_trips_subtitle: 'جرّب تغيير الفلاتر أو كن أول من ينشئ رحلة!',
+            create_trip: 'إنشاء رحلة',
+            error_loading_trips: 'تعذر تحميل الرحلات',
+            pagination_prev: 'السابق',
+            pagination_next: 'التالي',
+            // Forms
+            form_email: 'البريد الإلكتروني',
+            form_password: 'كلمة المرور',
+            form_full_name: 'الاسم الكامل',
+            form_phone: 'رقم الهاتف',
+            form_national_id: 'الرقم القومي',
+            form_passport: 'رقم جواز السفر',
+            form_passport_expiry: 'تاريخ انتهاء الجواز',
+            form_facebook: 'حساب فيسبوك',
+            form_submit: 'إرسال',
+            form_save: 'حفظ',
+            form_cancel: 'إلغاء',
+            form_send: 'إرسال',
+            // Auth
+            login_title: 'أهلًا بعودتك',
+            login_subtitle: 'سجل دخولك للمتابعة',
+            login_button: 'تسجيل الدخول',
+            register_title: 'أنشئ حسابك',
+            register_subtitle: 'انضم إلى مجتمع رفقة عمرة',
+            register_button: 'إنشاء حساب',
+            forgot_password: 'نسيت كلمة المرور؟',
+            no_account: 'ليس لديك حساب؟',
+            have_account: 'لديك حساب بالفعل؟',
+            reset_password_title: 'إعادة تعيين كلمة المرور',
+            reset_password_email_label: 'أدخل بريدك وسنرسل لك رابط إعادة التعيين',
+            reset_password_new: 'كلمة المرور الجديدة',
+            reset_password_confirm: 'تأكيد كلمة المرور',
+            reset_password_button: 'إعادة تعيين',
+            // Account
+            account_delete: 'حذف الحساب',
+            account_delete_warn: 'سيتم إخفاء بياناتك بشكل دائم. اكتب كلمة المرور للتأكيد.',
+            block_user: 'حظر المستخدم',
+            unblock_user: 'إلغاء الحظر',
+            report_user: 'الإبلاغ عن المستخدم',
+            blocked_users: 'المستخدمون المحظورون',
+            // Chat / requests
+            chat_send_placeholder: 'اكتب رسالة…',
+            chat_empty: 'لا توجد رسائل بعد. ابدأ المحادثة 👋',
+            accept: 'قبول',
+            reject: 'رفض',
+            pending: 'قيد المراجعة',
+            accepted: 'مقبول',
+            rejected: 'مرفوض',
+            // Misc
+            language: 'اللغة',
+            loading: 'جارٍ التحميل…',
+            no_trips: 'لا توجد رحلات تطابق الفلاتر',
+            new_version_available: 'يتوفر إصدار جديد',
+            refresh: 'تحديث',
+            error_generic: 'حدث خطأ ما',
+            confirm: 'تأكيد',
+            yes: 'نعم',
+            no: 'لا',
+            session_expired: 'انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.',
+
+            // Page titles
+            title_dashboard: 'لوحة التحكم',
+            title_create_trip: 'إنشاء رحلة عمرة جديدة',
+            title_edit_trip: 'تعديل الرحلة',
+            title_my_requests: 'طلبات الانضمام',
+            title_profile: 'ملفي الشخصي',
+            title_trip_detail: 'تفاصيل الرحلة',
+            title_user_profile: 'ملف المستخدم',
+
+            // Dashboard
+            welcome_back: 'أهلًا بعودتك',
+            tab_my_announcements: 'رحلاتي',
+            tab_incoming_requests: 'الطلبات الواردة',
+            inactive_banner: 'غير نشط — مخفي عن البحث',
+            active_label: 'نشط',
+            full_label: 'مكتمل',
+            view_btn: 'عرض',
+            edit_btn: 'تعديل',
+            requests_btn: 'الطلبات',
+            pending_requests_count: 'طلب قيد المراجعة',
+            no_announcements_title: 'لا توجد رحلات بعد',
+            no_announcements_subtitle: 'أنشئ أول إعلان رحلة لتبدأ التواصل!',
+            select_trip_first: 'اختر رحلة من أبوبة رحلاتي لعرض طلباتها',
+            no_requests_for_trip: 'لا توجد طلبات لـ',
+            requests_appear_here: 'ستظهر الطلبات هنا عندما يكتشف الناس رحلتك.',
+            requests_for: 'طلبات رحلة',
+            persons_count: 'أشخاص',
+            you_reply: 'ردك',
+            browse_trips: 'تصفح الرحلات',
+            spots_filled_count: 'محجوز',
+            spots_filled_of: 'من',
+
+            // Create / Edit announcement
+            section_basic_info: 'المعلومات الأساسية',
+            section_dates_hotel: 'التواريخ والفندق',
+            section_room_budget: 'الغرفة والميزانية',
+            section_extras: 'إضافات',
+            trip_title_label: 'عنوان الرحلة *',
+            trip_title_placeholder: 'مثال: عمرة رمضان ٢٠٢٦',
+            location_label: 'الوجهة *',
+            select_location: 'اختر الوجهة',
+            makkah_only: 'مكة فقط',
+            madinah_only: 'المدينة فقط',
+            both_cities: 'مكة والمدينة',
+            departure_date: 'تاريخ المغادرة *',
+            return_date_required: 'تاريخ العودة *',
+            hotel_name_label: 'اسم الفندق *',
+            hotel_name_makkah: 'اسم فندق مكة *',
+            hotel_name_madinah: 'اسم فندق المدينة *',
+            hotel_stars_label: 'تصنيف الفندق *',
+            makkah_stay: 'إقامة مكة',
+            madinah_stay: 'إقامة المدينة',
+            check_in: 'تاريخ الوصول *',
+            check_out: 'تاريخ المغادرة *',
+            stars_short: 'نجوم',
+            stars_3: '٣ نجوم',
+            stars_4: '٤ نجوم',
+            stars_5: '٥ نجوم',
+            stars_2: 'نجمتان',
+            total_trip: 'إجمالي الرحلة',
+            room_type_label: 'نوع الغرفة *',
+            room_double: 'ثنائية (شخصان)',
+            room_triple: 'ثلاثية (٣ أشخاص)',
+            room_quad: 'رباعية (٤ أشخاص)',
+            room_single: 'فردية (شخص واحد)',
+            people_per_room_label: 'عدد الأشخاص في الغرفة *',
+            total_rooms_label: 'إجمالي الغرف المتاحة *',
+            budget_per_person_egp: 'الميزانية للشخص (ج.م) *',
+            max_participants_label: 'أقصى عدد للمشاركين *',
+            includes_transport_check: 'يشمل المواصلات',
+            includes_meals_check: 'يشمل الوجبات',
+            description_label: 'الوصف *',
+            description_placeholder: 'صف خطة رحلتك، البرنامج، وما يشمل...',
+            requirements_optional: 'الشروط (اختياري)',
+            requirements_placeholder: 'أي شروط للمشاركين (مثل: عائلات فقط، أخوات فقط، إلخ)',
+            cancel_btn: 'إلغاء',
+            create_trip_btn: 'إنشاء إعلان الرحلة',
+            save_changes_btn: 'حفظ التعديلات',
+            creating_btn: 'جارٍ الإنشاء…',
+            saving_btn: 'جارٍ الحفظ…',
+            err_select_location: 'يرجى اختيار الوجهة',
+            err_fill_city_dates: 'يرجى تعبئة تواريخ مكة والمدينة',
+            err_makkah_dates: 'تاريخ مغادرة مكة يجب أن يكون بعد الوصول',
+            err_madinah_dates: 'تاريخ مغادرة المدينة يجب أن يكون بعد الوصول',
+            err_fill_dates: 'يرجى تعبئة تاريخ المغادرة والعودة',
+            err_return_after_dep: 'تاريخ العودة يجب أن يكون بعد تاريخ المغادرة',
+            err_max_lt_filled: 'لا يمكن تقليل عدد المشاركين عن المحجوز حاليًا',
+            trip_created: 'تم إنشاء الرحلة بنجاح!',
+            trip_updated: 'تم تحديث الرحلة بنجاح!',
+            trip_full_no_edit: 'هذه الرحلة مكتملة ولا يمكن تعديلها.',
+            not_owner_trip: 'لست صاحب هذه الرحلة.',
+            could_not_load_trip: 'تعذر تحميل الرحلة',
+            editing_locked: 'التعديل مقفل',
+            currently_joined: 'انضم {n} حاليًا — لا يمكن التقليل عن هذا العدد',
+
+            // Status badges
+            status_pending: 'قيد المراجعة',
+            status_accepted: 'مقبول',
+            status_rejected: 'مرفوض',
+
+            // Trip detail
+            back_to_browse: 'العودة للتصفح',
+            trip_inactive_notice: 'هذه الرحلة غير نشطة حاليًا.',
+            trip_details: 'تفاصيل الرحلة',
+            section_dates: 'التواريخ',
+            section_hotel: 'الفندق',
+            section_room: 'الغرفة',
+            section_budget: 'الميزانية',
+            section_includes: 'يشمل',
+            section_description: 'الوصف',
+            section_requirements: 'الشروط',
+            join_now_btn: 'إرسال طلب انضمام',
+            num_people_req: 'كم شخصًا؟',
+            your_message: 'رسالتك',
+            message_placeholder: 'عرّف عن نفسك ووضّح سبب رغبتك في الانضمام...',
+            sending: 'جارٍ الإرسال…',
+            request_sent: 'تم إرسال الطلب! سيرد عليك منظّم الرحلة قريبًا.',
+            already_requested: 'لقد طلبت الانضمام لهذه الرحلة مسبقًا',
+            cannot_join_own: 'لا يمكنك الانضمام لرحلتك',
+            login_to_join: 'سجّل دخولك لإرسال طلب انضمام',
+            comments: 'التعليقات',
+            add_comment: 'أضف تعليقًا',
+            post_comment: 'نشر التعليق',
+            mark_as_suggestion: 'حدده كاقتراح',
+            no_comments_yet: 'لا توجد تعليقات بعد. كن أول من يسأل!',
+            comment_posted: 'تم نشر التعليق',
+            suggestion_label: 'اقتراح',
+            // Trip detail (dynamic) — additional
+            dates_label: 'التواريخ',
+            makkah_label: 'مكة المكرمة',
+            madinah_label: 'المدينة المنورة',
+            hotel_makkah_label: 'فندق مكة',
+            hotel_madinah_label: 'فندق المدينة',
+            hotel_label_suffix: 'فندق',
+            rooms_available_label: 'الغرف المتاحة',
+            transport_included: 'يشمل المواصلات',
+            meals_included: 'يشمل الوجبات',
+            spots_filled_label: 'محجوز',
+            spot_available_count: 'مكان متاح',
+            manage_trip: 'إدارة الرحلة',
+            full_editing_locked: 'مكتملة • التعديل مقفل',
+            contact_host: 'التواصل مع المنظّم',
+            not_provided: 'غير متوفر',
+            chat_whatsapp: 'محادثة عبر واتساب',
+            login_to_join_btn: 'سجّل الدخول للانضمام',
+            login_see_contact: 'سجّل الدخول لعرض بيانات التواصل',
+            login_word: 'تسجيل الدخول',
+            comments_suggestions: 'التعليقات والاقتراحات',
+            comment_placeholder: 'اطرح سؤالًا أو اقترح تغييرًا...',
+            post_short: 'نشر',
+            login_to_comment: 'سجّل الدخول لكتابة تعليق',
+            no_comments_alt: 'لا توجد تعليقات بعد. كن أول من يسأل أو يقترح!',
+            back_to_home: 'العودة للرئيسية',
+            number_of_people: 'عدد الأشخاص',
+            message_to_host: 'رسالة إلى المنظّم',
+            join_intro_placeholder: 'عرّف عن نفسك واذكر أي تفضيلات أو أسئلة...',
+
+            // My requests
+            my_requests_h: 'طلبات الانضمام',
+            no_my_requests: 'لا توجد طلبات بعد',
+            no_my_requests_subtitle: 'تصفح الرحلات المتاحة وأرسل طلب انضمام!',
+            cancel_request: 'إلغاء الطلب',
+            confirm_cancel_request: 'هل تريد إلغاء طلب الانضمام هذا؟',
+            request_cancelled: 'تم إلغاء الطلب.',
+            chat_btn: 'محادثة',
+            organizer_reply: 'رد المنظّم',
+            organizer: 'المنظّم',
+            view_trip_btn: 'عرض الرحلة',
+
+            // Profile
+            profile_h: 'ملفي الشخصي',
+            section_personal_info: 'المعلومات الشخصية',
+            section_passport_info: 'بيانات جواز السفر',
+            section_facebook_info: 'فيسبوك (اختياري)',
+            section_change_password: 'تغيير كلمة المرور',
+            section_notifications_history: 'سجل الإشعارات',
+            section_blocked_users: 'المستخدمون المحظورون',
+            section_danger_zone: 'منطقة الخطر',
+            current_password: 'كلمة المرور الحالية',
+            new_password: 'كلمة المرور الجديدة (اتركها فارغة للإبقاء)',
+            email_readonly_note: 'لا يمكن تغيير البريد الإلكتروني.',
+            save_profile: 'حفظ الملف',
+            profile_saved: 'تم حفظ الملف بنجاح',
+            no_notifications_title: 'لا توجد إشعارات بعد',
+            no_notifications_subtitle: 'سترى التحديثات هنا عند انضمام أحد لرحلتك أو إرسال رسالة.',
+            no_blocked_users: 'لم تحظر أحدًا.',
+            unblock_btn: 'إلغاء الحظر',
+            delete_account_warning: 'حذف حسابك بشكل دائم. لا يمكن التراجع.',
+            delete_account_btn: 'حذف حسابي',
+            confirm_delete_account: 'اكتب كلمة مرورك لحذف الحساب نهائيًا:',
+            account_deleted: 'تم حذف حسابك.',
+            notif_new_request: 'طلب جديد',
+            notif_accepted: 'مقبول',
+            notif_rejected: 'مرفوض',
+            notif_comment: 'تعليق',
+            notif_message: 'رسالة',
+            notif_other: 'إشعار',
+            could_not_load_profile: 'تعذر تحميل الملف',
+            could_not_load_notifs: 'تعذر تحميل الإشعارات',
+            could_not_mark_read: 'تعذر تعليم الكل كمقروء',
+            mark_all_read: 'تعليم الكل كمقروء',
+            notifications_word: 'إشعارات',
+            notification_word: 'إشعار',
+            unread_word: 'غير مقروء',
+
+            // User profile
+            trip_host: 'منظّم الرحلة',
+            trips_created_label: 'رحلات أنشأها',
+            trips_joined_label: 'رحلات انضم إليها',
+            shared_trip_banner: 'لقد سافرتما معًا — بيانات التواصل متاحة.',
+            contact_locked_notice: 'تتوفر بيانات التواصل فقط بعد إتمام رحلة مشتركة.',
+            view_facebook: 'عرض الفيسبوك',
+            member_since: 'عضو منذ',
+            contact_details: 'بيانات التواصل',
+            public_info: 'معلومات عامة',
+            passport_word: 'جواز السفر',
+            exp_label: 'تنتهي',
+            no_facebook: 'لا يوجد فيسبوك مرتبط',
+            profile_not_found: 'الملف غير موجود',
+            shared_trip_banner_alt: 'لقد سافرتما معًا — تظهر بيانات التواصل كاملة.',
+            contact_locked_alt: 'تظهر بيانات التواصل فقط بعد إتمام رحلة معًا.',
+
+            // Modal / response
+            respond_to_request: 'الرد على الطلب',
+            optional_response: 'رسالة رد (اختياري)',
+            optional_response_placeholder: 'أضف ملاحظة للمتقدّم (اختياري)...',
+            accept_request: 'قبول الطلب',
+            reject_request: 'رفض الطلب',
+            request_accepted_ok: 'تم قبول الطلب بنجاح!',
+            request_rejected_ok: 'تم رفض الطلب.',
+            chat_title: 'محادثة',
+
+            // Reset password
+            password_reset_sent: 'إذا كان هذا البريد موجودًا، تم إنشاء رابط إعادة تعيين. تحقق من السجل.',
+            password_reset_success: 'تم إعادة تعيين كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.',
+            password_reset_token_missing: 'رمز الإعادة مفقود أو غير صالح.',
+
+            // Loading buttons
+            sending_request: 'جارٍ إرسال الطلب…',
+            registering: 'جارٍ إنشاء الحساب…',
+            signing_in: 'جارٍ تسجيل الدخول…',
+
+            // Confirms
+            confirm_deactivate: 'إيقاف هذه الرحلة؟ ستختفي من نتائج البحث.',
+            confirm_activate: 'تنشيط هذه الرحلة؟',
+            trip_activated: 'تم تنشيط الرحلة',
+            trip_deactivated: 'تم إيقاف الرحلة',
+
+            // Favorites (saved trips)
+            fav_save: 'حفظ الرحلة',
+            fav_saved: 'محفوظة',
+            fav_added: 'تم حفظ الرحلة في المفضلة',
+            fav_removed: 'تمت إزالة الرحلة من المفضلة',
+            fav_filter: 'الرحلات المحفوظة فقط',
+            fav_login_required: 'سجّل الدخول لحفظ الرحلات',
+            no_saved_trips_title: 'لا توجد رحلات محفوظة بعد',
+            no_saved_trips_subtitle: 'اضغط على القلب في أي رحلة لحفظها لوقت لاحق.',
+
+            // Comments edit/delete
+            comment_edit: 'تعديل',
+            comment_delete: 'حذف',
+            comment_updated: 'تم تحديث التعليق',
+            comment_deleted: 'تم حذف التعليق',
+            confirm_delete_comment: 'حذف هذا التعليق؟',
+
+            // Trip delete
+            delete_trip: 'حذف الرحلة',
+            confirm_delete_trip: 'حذف هذه الرحلة نهائيًا؟ سيتم رفض الطلبات المعلقة وإخطار المنضمين.',
+            trip_deleted: 'تم حذف الرحلة',
+
+            // Footer / legal
+            footer_terms: 'شروط الخدمة',
+            footer_privacy: 'سياسة الخصوصية',
+            footer_safety: 'إرشادات الأمان',
+            footer_rights: 'خدمة مجتمعية مجانية للمعتمرين.',
+            agree_terms_prefix: 'بإنشاء حساب فإنك توافق على',
+            and_word: 'و',
+            title_terms: 'شروط الخدمة',
+            title_privacy: 'سياسة الخصوصية',
+            title_safety: 'إرشادات الأمان',
+
+            // Errors / connectivity
+            conn_error: 'مشكلة في الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
+            retry: 'إعادة المحاولة',
+
+            // Relative time (rel_fmt is a template: {n} = number, {u} = unit)
+            rel_just_now: 'الآن',
+            rel_fmt: 'منذ {n}{u}',
+            rel_m: ' د',
+            rel_h: ' س',
+            rel_d: ' ي',
+
+            // Notifications dropdown
+            notif_title: 'الإشعارات',
+            notif_mark_all: 'تعليم الكل كمقروء',
+            notif_empty: 'لا توجد إشعارات بعد',
+            notif_load_failed: 'تعذر تحميل الإشعارات',
+            link_copied: 'تم نسخ الرابط',
+
+            // Chat / verification
+            chat_closed: 'انتهت هذه المحادثة.',
+            verify_banner: 'يرجى تأكيد بريدك الإلكتروني — تحقق من صندوق الوارد للعثور على رابط التأكيد.',
+            verify_resend: 'إعادة إرسال البريد',
+            verify_sent: 'تم إرسال رسالة التأكيد.',
+            verify_required: 'يرجى تأكيد بريدك الإلكتروني أولًا.',
+            verified_label: 'موثّق',
+
+            // How it works
+            hiw_title: 'كيف تعمل المنصة',
+            hiw_s1_t: 'أنشئ رحلة أو ابحث عن واحدة',
+            hiw_s1_d: 'أنشئ رحلة عمرتك الخاصة أو تصفح رحلات إخوانك المعتمرين.',
+            hiw_s2_t: 'اطلب الانضمام وتواصل',
+            hiw_s2_d: 'أرسل طلب انضمام، وتحدث بأمان داخل التطبيق، وتعرّف على رفقاء سفرك.',
+            hiw_s3_t: 'احجزوا معًا وادفعوا لمقدمي الخدمة مباشرة',
+            hiw_s3_d: 'اتفقوا على التفاصيل، ثم ادفعوا للفنادق وشركات الطيران مباشرة — «رفقة عمرة» لا تتعامل مع الأموال أبدًا.',
+            hiw_note: 'مجاني ١٠٠٪. لا مدفوعات عبر المنصة إطلاقًا.',
+
+            // After a request is accepted
+            accepted_next_title: 'ما الخطوة التالية؟',
+            accepted_next_1: 'اتفق على تفاصيل الحجز والدفع مباشرة مع منظّم الرحلة.',
+            accepted_next_2: 'ادفع فقط لمقدمي الخدمة الرسميين — لا ترسل أموالًا لأي أفراد إطلاقًا.',
+            accepted_next_3: 'احتفظ بالإيصالات واحصل على تأكيد كتابي لكل حجز.',
+            read_safety: 'اقرأ إرشادات الأمان',
+
+            // Contact / documents
+            contact_after_accept: 'تظهر بيانات التواصل بعد قبولك هذا الطلب.',
+            id_on_file: 'الرقم القومي مسجّل',
+            passport_on_file: 'جواز السفر مسجّل',
+            contact_label: 'التواصل',
+
+            // Auth forms
+            show_password: 'إظهار كلمة المرور',
+            hide_password: 'إخفاء كلمة المرور',
+            passwords_no_match: 'كلمتا المرور غير متطابقتين',
+            creating_account: 'جارٍ إنشاء الحساب...',
+            logging_in: 'جارٍ تسجيل الدخول...',
+
+            // Chat
+            chat_no_messages: 'لا توجد رسائل بعد. ابدأ بالتحية!',
+
+            // Page titles
+            title_verify: 'تأكيد البريد الإلكتروني',
+        }
+    };
+
+    let current = 'en';
+
+    function detect() {
+        const saved = localStorage.getItem('omra_locale');
+        if (saved && dict[saved]) return saved;
+        const browserLang = (navigator.language || 'en').slice(0, 2);
+        return dict[browserLang] ? browserLang : 'en';
+    }
+
+    function t(key, fallback) {
+        return (dict[current] && dict[current][key]) || (dict.en && dict.en[key]) || fallback || key;
+    }
+
+    function isRTL() {
+        return RTL_LOCALES.has(current);
+    }
+
+    function apply() {
+        const html = document.documentElement;
+        html.setAttribute('lang', current);
+        html.setAttribute('dir', isRTL() ? 'rtl' : 'ltr');
+        // Translate elements with data-i18n="key"
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.textContent = t(key);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            el.setAttribute('placeholder', t(key));
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            el.setAttribute('title', t(key));
+        });
+        document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+            const key = el.getAttribute('data-i18n-aria-label');
+            el.setAttribute('aria-label', t(key));
+        });
+        // Document <title> via <meta name="i18n-title" content="key">
+        const titleMeta = document.querySelector('meta[name="i18n-title"]');
+        if (titleMeta) {
+            const key = titleMeta.getAttribute('content');
+            if (key) document.title = t(key) + ' — ' + t('app_name');
+        }
+        document.dispatchEvent(new CustomEvent('localechange', { detail: { locale: current } }));
+    }
+
+    function set(locale) {
+        if (!dict[locale]) return;
+        current = locale;
+        localStorage.setItem('omra_locale', locale);
+        apply();
+    }
+
+    function get() { return current; }
+
+    function init() {
+        current = detect();
+        apply();
+    }
+
+    return { init, set, get, t, isRTL, apply };
+})();
+
+// Apply as early as possible (before DOMContentLoaded so dir/lang are set before paint)
+window.I18N.init();
+document.addEventListener('DOMContentLoaded', () => window.I18N.apply());

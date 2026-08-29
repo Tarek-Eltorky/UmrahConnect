@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>User Profile - Umrah Connect</title>
+    <meta name="i18n-title" content="title_user_profile">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="profile-page">
+        <div id="alertContainer"></div>
+
+        <!-- Hero -->
+        <div class="profile-hero" id="profileHero" style="min-height:180px;">
+            <div class="profile-avatar-lg" id="heroAvatar">?</div>
+            <div class="profile-hero-info">
+                <h2 id="heroName" data-i18n="loading">Loading…</h2>
+                <p id="heroMeta" style="opacity:0.8;"></p>
+            </div>
+        </div>
+
+        <div class="container" style="max-width:720px; padding-top:2rem;">
+            <div id="profileContent">
+                <div class="loading"><div class="spinner"></div><p data-i18n="loading">Loading…</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        // user_id is injected by Jinja2 from the URL
+        const TARGET_USER_ID = {{ user_id }};
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+
+        async function loadProfile() {
+            try {
+                const d = await API.get(`/api/users/${TARGET_USER_ID}/profile`);
+
+                // Hero
+                const initials = d.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                document.getElementById('heroAvatar').textContent = initials;
+                document.getElementById('heroName').textContent   = d.full_name;
+                document.title = `${d.full_name} — ${t('app_name')}`;
+
+                const metaParts = [`${t('member_since')} ${d.member_since}`];
+                document.getElementById('heroMeta').textContent = metaParts.join(' • ');
+
+                // Build card
+                const fbLink = d.facebook_id
+                    ? (d.facebook_id.startsWith('http') ? d.facebook_id : `https://facebook.com/${d.facebook_id}`)
+                    : null;
+
+                let sharedBanner = '';
+                if (d.has_shared_trip) {
+                    sharedBanner = `
+                    <div class="alert alert-success mb-3" style="border-radius:10px;">
+                        <i class="fas fa-handshake"></i>
+                        ${t('shared_trip_banner_alt')}
+                    </div>`;
+                } else if (API.isLoggedIn()) {
+                    sharedBanner = `
+                    <div style="background:#fffbea; border:1px solid #ffe58f; border-radius:10px; padding:0.85rem 1.1rem; margin-bottom:1.25rem; font-size:0.88rem; color:#856404;">
+                        <i class="fas fa-lock"></i>
+                        ${t('contact_locked_alt')}
+                    </div>`;
+                }
+
+                let contactSection = '';
+                if (d.has_shared_trip) {
+                    contactSection = `
+                    <div class="profile-form-card">
+                        <h4 style="margin-bottom:1rem; color:var(--primary-color);"><i class="fas fa-address-book"></i> ${t('contact_details')}</h4>
+                        ${d.phone ? `<div class="pub-info-row"><i class="fas fa-phone"></i><span>${UI.esc(d.phone)}</span><a href="${UI.esc(UI.waLink(d.phone))}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-whatsapp" style="padding:0.25rem 0.75rem;font-size:0.8rem;margin-inline-start:auto;"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>` : ''}
+                        ${d.national_id_masked ? `<div class="pub-info-row"><i class="fas fa-id-card"></i><span>${t('form_national_id')}: ${UI.esc(d.national_id_masked)}</span></div>` : ''}
+                        ${d.passport_masked ? `<div class="pub-info-row"><i class="fas fa-passport"></i><span>${t('passport_word')}: ${UI.esc(d.passport_masked)}${d.passport_expiry ? ' • ' + t('exp_label') + ': ' + UI.esc(d.passport_expiry) : ''}</span></div>` : ''}
+                    </div>`;
+                }
+
+                document.getElementById('profileContent').innerHTML = `
+                    ${sharedBanner}
+                    <div class="profile-form-card mb-3">
+                        <h4 style="margin-bottom:1rem; color:var(--primary-color);"><i class="fas fa-user"></i> ${t('public_info')}</h4>
+                        <div class="pub-info-row">
+                            <i class="fas fa-mosque" style="color:var(--secondary-color);"></i>
+                            <span><strong>${d.trips_created}</strong> ${t('trips_created_label')}</span>
+                            <span style="margin-inline-start:1.5rem;"><strong>${d.trips_joined}</strong> ${t('trips_joined_label')}</span>
+                        </div>
+                        ${fbLink ? `
+                        <div class="pub-info-row">
+                            <a href="${UI.esc(fbLink)}" target="_blank" rel="noopener noreferrer" class="link-facebook" style="font-weight:600;"><i class="fab fa-facebook"></i> ${UI.esc(d.facebook_name || d.facebook_id)}</a>
+                        </div>` : `
+                        <div class="pub-info-row" style="color:var(--text-secondary);">
+                            <i class="fab fa-facebook"></i>
+                            <span>${t('no_facebook')}</span>
+                        </div>`}
+                    </div>
+                    ${contactSection}
+                    <div style="margin-top:1.5rem;">
+                        <a href="/" class="btn btn-outline"><i class="fas fa-search"></i> ${t('browse_trips')}</a>
+                    </div>`;
+
+            } catch (err) {
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="alert alert-error">${UI.esc(err.message)}</div>`;
+                document.getElementById('heroName').textContent = t('profile_not_found');
+            }
+        }
+
+        loadProfile();
+
+        // Re-render dynamic content on language toggle
+        document.addEventListener('localechange', () => loadProfile());
+    </script>
+
+    <style>
+        .pub-info-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.92rem;
+        }
+        .pub-info-row:last-child { border-bottom: none; }
+        .pub-info-row i { width: 18px; text-align: center; color: var(--text-secondary); flex-shrink: 0; }
+        .mb-3 { margin-bottom: 1.25rem; }
+    </style>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

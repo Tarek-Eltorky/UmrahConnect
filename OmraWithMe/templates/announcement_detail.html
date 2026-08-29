@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>{{ meta_title | default('Trip Details - Umrah Connect') }}</title>
+    <meta name="i18n-title" content="title_trip_detail">
+    <meta name="description" content="{{ meta_description | default('') }}">
+    <link rel="canonical" href="{{ canonical_url | default('') }}">
+    <meta property="og:title" content="{{ meta_title | default('Trip Details - Umrah Connect') }}">
+    <meta property="og:description" content="{{ meta_description | default('') }}">
+    <meta property="og:url" content="{{ canonical_url | default('') }}">
+    <meta property="og:image" content="{{ og_image_url | default('') }}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <div id="announcementDetail">
+            <div class="loading"><div class="spinner"></div><p data-i18n="loading">Loading…</p></div>
+        </div>
+    </div>
+
+    <!-- Join Request Modal -->
+    <div id="joinModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> <span data-i18n="request_to_join">Request to Join</span></h3>
+                <button class="modal-close" onclick="closeModal('joinModal')" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label data-i18n="number_of_people">Number of People</label>
+                    <input type="number" id="joinNumPeople" min="1" max="20" value="1">
+                </div>
+                <div class="form-group">
+                    <label><span data-i18n="message_to_host">Message to Host</span> *</label>
+                    <textarea id="joinMessage" rows="4" required maxlength="2000"
+                        data-i18n-placeholder="join_intro_placeholder"
+                        placeholder="Introduce yourself, mention any preferences or questions..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('joinModal')" data-i18n="form_cancel">Cancel</button>
+                <button id="joinSubmitBtn" class="btn btn-primary" onclick="submitJoinRequest()">
+                    <i class="fas fa-paper-plane"></i> <span data-i18n="join_now_btn">Send Request</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        const announcementId = {{ announcement_id }};
+        let announcementData = null;
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+        function locName(loc) {
+            if (loc === 'Makkah') return t('filter_makkah');
+            if (loc === 'Madinah') return t('filter_madinah');
+            if (loc === 'Makkah/Madinah') return t('filter_both');
+            return loc;
+        }
+
+        async function loadAnnouncement() {
+            const container = document.getElementById('announcementDetail');
+
+            try {
+                const data = await API.get(`/api/announcements/${announcementId}`);
+                announcementData = data;
+
+                const currentUserId = API.getUser()?.id;
+                const isOwner  = API.isLoggedIn() && currentUserId === data.creator_id;
+                const canJoin  = API.isLoggedIn() && !isOwner && data.spots_available > 0 && data.is_active;
+                const pct      = data.max_participants > 0 ? Math.round((data.spots_filled / data.max_participants) * 100) : 0;
+                const whatsapp = data.creator_phone ? UI.waLink(data.creator_phone) : null;
+
+                container.innerHTML = `
+                    <a href="/" class="btn btn-outline mb-3 back-link"><i class="fas fa-arrow-left"></i> ${t('back_to_browse')}</a>
+
+                    ${!data.is_active ? `<div class="alert alert-error"><i class="fas fa-eye-slash"></i> ${t('trip_inactive_notice')}</div>` : ''}
+
+                    <div class="card">
+                        <div class="card-header" style="position:relative;">
+                            <div class="card-header-top">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> ${locName(data.location)}</span>
+                                ${data.duration_days ? `<span class="duration-badge"><i class="fas fa-moon"></i> ${data.duration_days} ${t('nights')}</span>` : ''}
+                            </div>
+                            <h1 style="margin: 0.3rem 0 0.25rem; line-height:1.25;">${UI.esc(data.title)}</h1>
+                            <p style="opacity:0.9; margin-top:0.25rem;">
+                                <i class="fas fa-user"></i>
+                                <a href="/user/${data.creator_id}" style="color:inherit; text-decoration:none; font-weight:600;"
+                                   onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    ${UI.esc(data.creator_name)}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:2rem;">
+                                <!-- Left: Trip details -->
+                                <div>
+                                    <p class="section-title"><i class="fas fa-info-circle"></i> ${t('trip_details')}</p>
+                                    <div class="meta-item mb-1">
+                                        <i class="fas fa-calendar"></i>
+                                        <strong>${t('dates_label')}:</strong>&nbsp;${UI.formatDate(data.departure_date)} <span class="date-arrow" aria-hidden="true">&rarr;</span> ${UI.formatDate(data.return_date)}
+                                        ${data.duration_days ? `<span style="color:var(--text-secondary); font-size:0.85rem;">&nbsp;(${data.duration_days} ${t('nights')})</span>` : ''}
+                                    </div>
+                                    ${data.makkah_checkin ? `
+                                    <div class="meta-item mb-1" style="padding-inline-start:1.4rem;">
+                                        <span>🕋 <strong>${t('makkah_label')}:</strong>&nbsp;${UI.formatDate(data.makkah_checkin)} <span class="date-arrow" aria-hidden="true">&rarr;</span> ${UI.formatDate(data.makkah_checkout)}</span>
+                                    </div>
+                                    <div class="meta-item mb-1" style="padding-inline-start:1.4rem;">
+                                        <span>🕌 <strong>${t('madinah_label')}:</strong>&nbsp;${UI.formatDate(data.madinah_checkin)} <span class="date-arrow" aria-hidden="true">&rarr;</span> ${UI.formatDate(data.madinah_checkout)}</span>
+                                    </div>
+                                    ` : ''}
+                                    <div class="meta-item mb-1">
+                                        <i class="fas fa-hotel"></i>
+                                        ${data.location === 'Makkah/Madinah' && data.hotel_name_madinah ? `
+                                            <div>
+                                                <div>🕋 <strong>${t('hotel_makkah_label')}:</strong>&nbsp;${UI.esc(data.hotel_name)} <span class="stars">${UI.renderStars(data.hotel_stars)}</span></div>
+                                                <div style="margin-top:0.25rem;">🕌 <strong>${t('hotel_madinah_label')}:</strong>&nbsp;${UI.esc(data.hotel_name_madinah)} <span class="stars">${UI.renderStars(data.hotel_stars_madinah)}</span></div>
+                                            </div>
+                                        ` : `<span>${data.location === 'Madinah' ? '🕌' : '🕋'} <strong>${locName(data.location)} ${t('hotel_label_suffix')}:</strong>&nbsp;${UI.esc(data.hotel_name)} <span class="stars">${UI.renderStars(data.hotel_stars)}</span></span>`}
+                                    </div>
+                                    <div class="meta-item mb-1">
+                                        <i class="fas fa-bed"></i>
+                                        <strong>${t('section_room')}:</strong>&nbsp;${UI.esc(data.room_type)} &bull; ${data.people_per_room} ${t('room_per_room')}
+                                    </div>
+                                    <div class="meta-item mb-1">
+                                        <i class="fas fa-door-open"></i>
+                                        <strong>${t('rooms_available_label')}:</strong>&nbsp;${data.total_rooms_available}
+                                    </div>
+                                    <div class="flex-gap mt-2">
+                                        ${data.includes_transport ? `<span class="badge badge-accepted"><i class="fas fa-bus mr-1"></i>${t('transport_included')}</span>` : ''}
+                                        ${data.includes_meals    ? `<span class="badge badge-accepted"><i class="fas fa-utensils mr-1"></i>${t('meals_included')}</span>`    : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Right: Budget & Join -->
+                                <div>
+                                    <div class="budget-display">
+                                        <div class="budget-amount">${UI.formatCurrency(data.budget_per_person)}</div>
+                                        <div class="budget-label">${t('per_person')}</div>
+                                    </div>
+
+                                    <div class="spots-indicator mt-2">
+                                        <span style="font-size:0.85rem; white-space:nowrap;">
+                                            <strong>${data.spots_filled}</strong>/${data.max_participants} ${t('spots_filled_label')}
+                                        </span>
+                                        <div class="spots-bar">
+                                            <div class="spots-fill" style="width:${pct}%;
+                                                background:${pct >= 90 ? 'var(--danger)' : pct >= 60 ? 'var(--warning)' : 'var(--primary-color)'};"></div>
+                                        </div>
+                                    </div>
+                                    <p style="color:var(--success); font-weight:600; margin:0.35rem 0;">
+                                        <i class="fas fa-check-circle"></i> ${data.spots_available} ${t('spot_available_count')}
+                                    </p>
+
+                                    ${canJoin ? `
+                                        <button class="btn btn-primary mt-2" style="width:100%;" onclick="openModal('joinModal')">
+                                            <i class="fas fa-user-plus"></i> ${t('request_to_join')}
+                                        </button>` : ''}
+
+                                    ${!API.isLoggedIn() ? `
+                                        <a href="/login" class="btn btn-primary mt-2" style="width:100%;">
+                                            <i class="fas fa-sign-in-alt"></i> ${t('login_to_join_btn')}
+                                        </a>` : ''}
+
+                                    ${isOwner ? `
+                                        <a href="/dashboard" class="btn btn-secondary mt-2" style="width:100%;">
+                                            <i class="fas fa-cog"></i> ${t('manage_trip')}
+                                        </a>
+                                        ${data.spots_filled < data.max_participants ? `
+                                        <a href="/edit-announcement/${data.id}" class="btn btn-warning mt-2" style="width:100%;">
+                                            <i class="fas fa-edit"></i> ${t('edit_trip')}
+                                        </a>` : `
+                                        <div class="btn mt-2 state-pill-disabled" style="width:100%;">
+                                            <i class="fas fa-lock"></i> ${t('full_editing_locked')}
+                                        </div>`}
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <hr style="margin:2rem 0; border-color:var(--border-color);">
+
+                            <!-- Description -->
+                            <div>
+                                <p class="section-title"><i class="fas fa-align-left"></i> ${t('section_description')}</p>
+                                <p style="white-space:pre-line; line-height:1.8;">${UI.esc(data.description)}</p>
+                            </div>
+
+                            ${data.requirements ? `
+                            <div class="mt-3">
+                                <p class="section-title"><i class="fas fa-list-check"></i> ${t('section_requirements')}</p>
+                                <p style="white-space:pre-line;">${UI.esc(data.requirements)}</p>
+                            </div>` : ''}
+
+                            <hr style="margin:2rem 0; border-color:var(--border-color);">
+
+                            <!-- Contact -->
+                            <div>
+                                <p class="section-title"><i class="fas fa-address-card"></i> ${t('contact_host')}</p>
+                                <p><i class="fas fa-user"></i> <a href="/user/${data.creator_id}" style="color:var(--primary-color); font-weight:600; text-decoration:none;">${UI.esc(data.creator_name)}</a></p>
+                                ${data.creator_facebook ? `<p><a href="https://facebook.com/${encodeURIComponent(data.creator_facebook_id || data.creator_facebook)}" target="_blank" rel="noopener noreferrer" class="link-facebook"><i class="fab fa-facebook"></i> ${UI.esc(data.creator_facebook)}</a></p>` : ''}
+                                ${API.isLoggedIn() ? `
+                                    <p><i class="fas fa-phone"></i> ${UI.esc(data.creator_phone) || t('not_provided')}</p>
+                                    ${whatsapp ? `
+                                    <a href="${whatsapp}" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp mt-2">
+                                        <i class="fab fa-whatsapp"></i> ${t('chat_whatsapp')}
+                                    </a>` : ''}
+                                ` : `<p style="color:var(--text-secondary);"><i class="fas fa-lock"></i> <a href="/login">${t('login_see_contact')}</a></p>`}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3><i class="fas fa-comments"></i> ${t('comments_suggestions')}</h3>
+                        </div>
+                        <div class="card-body">
+                            ${API.isLoggedIn() ? `
+                                <form id="commentForm" class="mb-3">
+                                    <div class="form-group">
+                                        <textarea id="commentContent" rows="3"
+                                            placeholder="${t('comment_placeholder')}" required></textarea>
+                                    </div>
+                                    <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" id="isSuggestion">
+                                            <label for="isSuggestion">${t('mark_as_suggestion')}</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-paper-plane"></i> ${t('post_short')}
+                                        </button>
+                                    </div>
+                                </form>` :
+                                `<p style="color:var(--text-secondary);"><a href="/login">${t('login_to_comment')}</a></p>`}
+
+                            <div id="commentsContainer">
+                                ${data.comments.length === 0 ?
+                                    `<div class="empty-state" style="padding:1.5rem;">
+                                        <i class="fas fa-comments"></i>
+                                        <p>${t('no_comments_alt')}</p>
+                                    </div>` :
+                                    data.comments.map(c => `
+                                    <div class="comment ${c.is_suggestion ? 'suggestion' : ''}" id="comment-${c.id}">
+                                        <div class="comment-header">
+                                            <span class="comment-author">
+                                                ${UI.esc(c.author_name)}
+                                                ${c.is_suggestion ? `<span class="badge badge-pending" style="margin-inline-start:0.5rem;">${t('suggestion_label')}</span>` : ''}
+                                            </span>
+                                            <span class="comment-date">${UI.formatRelative(c.created_at)}</span>
+                                        </div>
+                                        <p class="comment-content" style="white-space:pre-line;">${UI.esc(c.content)}</p>
+                                        ${(currentUserId === c.author_id || isOwner) ? `
+                                        <div class="comment-actions">
+                                            ${currentUserId === c.author_id ? `<button type="button" onclick="startEditComment(${c.id})"><i class="fas fa-pen"></i> ${t('comment_edit')}</button>` : ''}
+                                            <button type="button" class="comment-del" onclick="deleteComment(${c.id})"><i class="fas fa-trash"></i> ${t('comment_delete')}</button>
+                                        </div>` : ''}
+                                    </div>`).join('')}
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Comment form handler
+                const commentForm = document.getElementById('commentForm');
+                if (commentForm) commentForm.addEventListener('submit', submitComment);
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${error.message}</div>
+                    <a href="/" class="btn btn-primary">${t('back_to_home')}</a>`;
+            }
+        }
+
+        async function submitJoinRequest() {
+            const btn = document.getElementById('joinSubmitBtn');
+            if (btn && btn.disabled) return;
+            if (btn) btn.disabled = true;
+            try {
+                await API.post('/api/join-requests', {
+                    announcement_id: announcementId,
+                    num_people: parseInt(document.getElementById('joinNumPeople').value),
+                    message: document.getElementById('joinMessage').value
+                });
+                closeModal('joinModal');
+                UI.showAlert(t('request_sent'), 'success');
+                loadAnnouncement(); // refresh to update button state
+            } catch (error) {
+                UI.showAlert(error.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function submitComment(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            if (btn && btn.disabled) return;
+            if (btn) btn.disabled = true;
+            try {
+                await API.post('/api/comments', {
+                    announcement_id: announcementId,
+                    content: document.getElementById('commentContent').value,
+                    is_suggestion: document.getElementById('isSuggestion').checked
+                });
+                document.getElementById('commentContent').value = '';
+                document.getElementById('isSuggestion').checked = false;
+                loadAnnouncement();
+            } catch (error) {
+                UI.showAlert(error.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function startEditComment(id) {
+            const box = document.getElementById(`comment-${id}`);
+            if (!box || box.querySelector('textarea')) return;
+            const p = box.querySelector('.comment-content');
+            const original = p.textContent;
+            const wrap = document.createElement('div');
+            wrap.innerHTML = `
+                <textarea rows="3" maxlength="2000" style="width:100%; margin:0.3rem 0;"></textarea>
+                <div style="display:flex; gap:0.5rem;">
+                    <button type="button" class="btn btn-primary btn-sm comment-save-btn">${t('form_save')}</button>
+                    <button type="button" class="btn btn-outline btn-sm comment-cancel-btn">${t('form_cancel')}</button>
+                </div>`;
+            wrap.querySelector('textarea').value = original;
+            p.style.display = 'none';
+            p.after(wrap);
+            wrap.querySelector('.comment-cancel-btn').onclick = () => { wrap.remove(); p.style.display = ''; };
+            wrap.querySelector('.comment-save-btn').onclick = async () => {
+                const content = wrap.querySelector('textarea').value.trim();
+                if (!content) return;
+                try {
+                    await API.put(`/api/comments/${id}`, { content });
+                    UI.showAlert(t('comment_updated'));
+                    loadAnnouncement();
+                } catch (e) { UI.showAlert(e.message, 'error'); }
+            };
+        }
+
+        async function deleteComment(id) {
+            if (!confirm(t('confirm_delete_comment'))) return;
+            try {
+                await API.delete(`/api/comments/${id}`);
+                UI.showAlert(t('comment_deleted'));
+                loadAnnouncement();
+            } catch (e) { UI.showAlert(e.message, 'error'); }
+        }
+
+        loadAnnouncement();
+
+        // Re-render dynamic content (which is built with hardcoded English fallbacks
+        // resolved through t()) whenever the user toggles language.
+        document.addEventListener('localechange', () => {
+            if (announcementData) loadAnnouncement();
+        });
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# App data & secrets — never commit
+*.db
+.dev_secret
+*.env
+
+# Android
+OmraWithMe_Android/.gradle/
+OmraWithMe_Android/build/
+OmraWithMe_Android/app/build/
+OmraWithMe_Android/local.properties
+OmraWithMe_Android/.idea/
+*.keystore
+*.jks
+
+# OS / editor
+.DS_Store
+Thumbs.db

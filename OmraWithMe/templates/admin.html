@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<!--
+  ADMIN MODERATION TOOL (internal, English-only)
+
+  DEPLOYMENT NOTE — how to make someone an admin:
+  There is deliberately no UI or API for granting admin rights. Promote a user
+  directly on the server against the SQLite database:
+
+      sqlite3 omrawithme.db "UPDATE users SET is_admin=1 WHERE email='admin@example.com';"
+
+  To revoke:  sqlite3 omrawithme.db "UPDATE users SET is_admin=0 WHERE email='admin@example.com';"
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Admin - Umrah Connect</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem; }
+        .admin-tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
+        .admin-tabs button { padding: 0.4rem 1rem; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; }
+        .admin-tabs button.active { background: #1a5f4a; color: #fff; border-color: #1a5f4a; }
+        .admin-table-scroll { overflow-x: auto; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; vertical-align: top; }
+        .admin-table th { background: #f4f4f4; }
+        .admin-actions button { margin: 0.1rem; font-size: 0.8rem; }
+        .admin-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd; }
+        .admin-inline-form { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .admin-inline-form input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect — Admin</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="admin-wrap">
+        <div id="alertContainer"></div>
+
+        <div id="adminContent" style="display:none;">
+            <h1><i class="fas fa-shield-halved" aria-hidden="true"></i> User Reports</h1>
+
+            <div class="admin-tabs" id="statusTabs">
+                <button data-status="open" class="active">Open</button>
+                <button data-status="reviewed">Reviewed</button>
+                <button data-status="dismissed">Dismissed</button>
+            </div>
+
+            <div class="admin-table-scroll">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Reporter &rarr; Reported</th>
+                            <th>Reason</th>
+                            <th>Details</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody">
+                        <tr><td colspan="6">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="admin-section">
+                <h2><i class="fas fa-plane-slash" aria-hidden="true"></i> Deactivate a Trip</h2>
+                <p>Takes a trip offline (sets it inactive). The organizer can re-activate it from their dashboard.</p>
+                <div class="admin-inline-form">
+                    <label for="tripIdInput">Trip ID:</label>
+                    <input type="number" id="tripIdInput" min="1" placeholder="e.g. 42">
+                    <button class="btn btn-primary" id="deactivateTripBtn">Deactivate trip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        (function () {
+            if (!API.isLoggedIn()) {
+                window.location.href = '/login?next=/admin';
+                return;
+            }
+
+            const alertBox = document.getElementById('alertContainer');
+            const content = document.getElementById('adminContent');
+            let currentStatus = 'open';
+
+            function showAlert(kind, text) {
+                alertBox.innerHTML = '<div class="alert alert-' + kind + '"></div>';
+                alertBox.firstChild.textContent = text;
+            }
+
+            function esc(s) {
+                const d = document.createElement('div');
+                d.textContent = s == null ? '' : String(s);
+                return d.innerHTML;
+            }
+
+            function fmtDate(iso) {
+                try { return new Date(iso).toLocaleString(); } catch (e) { return iso || ''; }
+            }
+
+            async function guardedGet(url) {
+                try {
+                    return await API.get(url);
+                } catch (error) {
+                    if (error.status === 403 || /admin/i.test(error.message || '')) {
+                        content.style.display = 'none';
+                        showAlert('error', 'Admins only');
+                        throw error;
+                    }
+                    showAlert('error', error.message || 'Request failed');
+                    throw error;
+                }
+            }
+
+            async function loadReports() {
+                const body = document.getElementById('reportsBody');
+                body.innerHTML = '<tr><td colspan="6">Loading…</td></tr>';
+                const reports = await guardedGet('/api/admin/reports?status=' + currentStatus);
+                content.style.display = 'block';
+                if (!reports.length) {
+                    body.innerHTML = '<tr><td colspan="6">No ' + esc(currentStatus) + ' reports.</td></tr>';
+                    return;
+                }
+                body.innerHTML = reports.map(function (r) {
+                    return '<tr>' +
+                        '<td>' + r.id + '</td>' +
+                        '<td>' + esc(r.reporter_name) + ' (#' + r.reporter_id + ')' +
+                            ' &rarr; <strong>' + esc(r.reported_name) + '</strong> (#' + r.reported_id + ')' +
+                            ' <a href="/user/' + r.reported_id + '" target="_blank" rel="noopener">view profile</a></td>' +
+                        '<td>' + esc(r.reason) + '</td>' +
+                        '<td>' + esc(r.details) + '</td>' +
+                        '<td>' + esc(fmtDate(r.created_at)) + '</td>' +
+                        '<td class="admin-actions">' +
+                            '<button class="btn btn-secondary" data-act="reviewed" data-id="' + r.id + '">Mark reviewed</button>' +
+                            '<button class="btn btn-secondary" data-act="dismissed" data-id="' + r.id + '">Dismiss</button>' +
+                            '<button class="btn btn-danger" data-act="deactivate-user" data-id="' + r.reported_id + '">Deactivate user</button>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
+            }
+
+            document.getElementById('reportsBody').addEventListener('click', async function (e) {
+                const btn = e.target.closest('button[data-act]');
+                if (!btn) return;
+                const act = btn.dataset.act;
+                const id = btn.dataset.id;
+                btn.disabled = true;
+                try {
+                    if (act === 'reviewed' || act === 'dismissed') {
+                        await API.post('/api/admin/reports/' + id + '/status', { status: act });
+                        showAlert('success', 'Report #' + id + ' marked ' + act + '.');
+                    } else if (act === 'deactivate-user') {
+                        if (!confirm('Deactivate user #' + id + '? They will no longer be able to log in.')) {
+                            btn.disabled = false;
+                            return;
+                        }
+                        await API.post('/api/admin/users/' + id + '/deactivate', {});
+                        showAlert('success', 'User #' + id + ' deactivated.');
+                    }
+                    await loadReports();
+                } catch (error) {
+                    showAlert('error', error.message || 'Action failed');
+                    btn.disabled = false;
+                }
+            });
+
+            document.getElementById('statusTabs').addEventListener('click', function (e) {
+                const btn = e.target.closest('button[data-status]');
+                if (!btn) return;
+                currentStatus = btn.dataset.status;
+                document.querySelectorAll('#statusTabs button').forEach(function (b) {
+                    b.classList.toggle('active', b === btn);
+                });
+                loadReports().catch(function () {});
+            });
+
+            document.getElementById('deactivateTripBtn').addEventListener('click', async function () {
+                const id = parseInt(document.getElementById('tripIdInput').value, 10);
+                if (!id) { showAlert('error', 'Enter a trip ID first.'); return; }
+                if (!confirm('Deactivate trip #' + id + '?')) return;
+                try {
+                    await API.post('/api/admin/announcements/' + id + '/deactivate', {});
+                    showAlert('success', 'Trip #' + id + ' deactivated.');
+                } catch (error) {
+                    showAlert('error', error.message || 'Action failed');
+                }
+            });
+
+            loadReports().catch(function () {});
+        })();
+    </script>
+</body>
+</html>

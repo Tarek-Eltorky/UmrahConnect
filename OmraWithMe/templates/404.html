@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>Page Not Found - Umrah Connect</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html[lang="ar"] .lang-en { display: none; }
+        html:not([lang="ar"]) .lang-ar { display: none; }
+        .notfound-wrap { text-align: center; padding: 4rem 1rem; }
+        .notfound-code { font-size: 5rem; font-weight: 800; color: #1a5f4a; line-height: 1; }
+        .notfound-wrap h1 { margin: 1rem 0 0.5rem; }
+        .notfound-wrap p { margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <div class="notfound-wrap">
+            <div class="notfound-code">404</div>
+            <div class="lang-en">
+                <h1>Page not found</h1>
+                <p>The page you are looking for doesn't exist or may have been removed.</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home" aria-hidden="true"></i> Back to Home
+                </a>
+            </div>
+            <div class="lang-ar" dir="rtl">
+                <h1>الصفحة غير موجودة</h1>
+                <p>الصفحة التي تبحث عنها غير موجودة أو ربما تمت إزالتها.</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home" aria-hidden="true"></i> العودة إلى الرئيسية
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

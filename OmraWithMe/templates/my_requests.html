@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>My Requests - Umrah Connect</title>
+    <meta name="i18n-title" content="title_my_requests">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h1><i class="fas fa-paper-plane"></i> <span data-i18n="my_requests_h">My Join Requests</span></h1>
+            <a href="/" class="btn btn-outline btn-sm"><i class="fas fa-search"></i> <span data-i18n="browse_trips">Browse Trips</span></a>
+        </div>
+
+        <div id="requestsContainer">
+            <div class="loading"><div class="spinner"></div><p data-i18n="loading">Loading…</p></div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal-overlay">
+        <div class="modal modal-xl">
+            <div class="modal-header">
+                <h3 id="chatModalTitle"><i class="fas fa-comments"></i> <span data-i18n="chat_title">Chat</span></h3>
+                <button class="modal-close" onclick="closeModal('chatModal'); stopChatPolling();" aria-label="Close">&times;</button>
+            </div>
+            <div class="chat-layout">
+                <div class="chat-profile-panel" id="chatProfilePanel"></div>
+                <div class="chat-messages-panel">
+                    <div class="chat-messages-body" id="chatMessagesBody">
+                        <div class="chat-empty" data-i18n="loading">Loading…</div>
+                    </div>
+                    <div class="chat-input-bar">
+                        <input id="chatInput" type="text" maxlength="2000"
+                            data-i18n-placeholder="chat_send_placeholder"
+                            placeholder="Type a message…"
+                            onkeydown="if(event.key==='Enter'){ event.preventDefault(); sendChatMsg(); }">
+                        <button class="chat-send-btn" onclick="sendChatMsg()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        if (!API.isLoggedIn()) window.location.href = '/login';
+
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+        let chatRequestId = null, chatPollTimer = null;
+        const _reqMap = {};
+
+        async function cancelRequest(id) {
+            if (!confirm(t('confirm_cancel_request'))) return;
+            try {
+                await API.delete(`/api/join-requests/${id}`);
+                // If the chat for this request is open, close it and stop polling.
+                if (chatRequestId === id) {
+                    stopChatPolling();
+                    chatRequestId = null;
+                    closeModal('chatModal');
+                }
+                UI.showAlert(t('request_cancelled'), 'success');
+                loadMyRequests();
+            } catch (e) { UI.showAlert(e.message, 'error'); }
+        }
+
+        async function loadMyRequests() {
+            const container = document.getElementById('requestsContainer');
+            try {
+                const requests = await API.get('/api/my-join-requests');
+                if (requests.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-paper-plane"></i><h3>${t('no_my_requests')}</h3><p>${t('no_my_requests_subtitle')}</p><a href="/" class="btn btn-primary mt-2">${t('browse_trips')}</a></div>`;
+                    return;
+                }
+                requests.forEach(r => { _reqMap[r.id] = r; });
+                container.innerHTML = `<div class="announcements-grid">${
+                    requests.map(r => {
+                        const fbLink = r.creator_facebook_id
+                            ? (r.creator_facebook_id.startsWith('http') ? r.creator_facebook_id : `https://facebook.com/${r.creator_facebook_id}`)
+                            : null;
+                        const waLink = r.creator_phone ? UI.waLink(r.creator_phone) : null;
+                        const statusLabel = r.status === 'pending' ? t('status_pending')
+                                          : r.status === 'accepted' ? t('status_accepted')
+                                          : t('status_rejected');
+                        return `
+                        <div class="card">
+                            <div class="card-header">
+                                <div style="display:flex; align-items:flex-start; gap:0.5rem;">
+                                    <h3 style="margin:0;">${UI.esc(r.announcement_title)}</h3>
+                                    <span class="badge badge-${r.status}" style="margin-inline-start:auto; margin-top:0.25rem; flex-shrink:0;">${statusLabel}</span>
+                                </div>
+                                <p style="opacity:0.8;"><i class="fas fa-map-marker-alt"></i> ${UI.esc(r.announcement_location)}</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="meta-item mb-1"><i class="fas fa-users"></i> ${r.num_people} ${t('persons_count')}</div>
+                                <div class="meta-item mb-2"><i class="fas fa-clock"></i> ${UI.formatRelative(r.created_at)}</div>
+                                ${r.message ? `<div class="requester-message-bubble"><i class="fas fa-comment" style="margin-right:0.4rem; opacity:0.6;"></i>"${UI.esc(r.message)}"</div>` : ''}
+                                ${r.creator_name ? `<div class="meta-item mb-1" style="font-size:0.83rem; color:var(--text-secondary);"><i class="fas fa-user-tie"></i> ${t('organizer')}: <a href="/user/${r.creator_id}" style="color:var(--primary-color); font-weight:600; text-decoration:none;"><strong>${UI.esc(r.creator_name)}</strong></a></div>` : ''}
+                                ${r.status === 'accepted' ? `<div class="alert alert-success mt-2"><i class="fas fa-check-circle"></i> <strong>${t('status_accepted')}!</strong>${r.response_message ? `<br><small>${t('organizer_reply')}: "${UI.esc(r.response_message)}"</small>` : ''}</div><div class="next-steps-card"><h4>${t('accepted_next_title')}</h4><ul><li>${t('accepted_next_1')}</li><li>${t('accepted_next_2')}</li><li>${t('accepted_next_3')}</li></ul><a href="/safety">${t('read_safety')}</a></div>` : ''}
+                                ${r.status === 'rejected' ? `<div class="alert alert-error mt-2"><i class="fas fa-times-circle"></i> ${t('status_rejected')}.${r.response_message ? `<br><small>${t('organizer_reply')}: "${UI.esc(r.response_message)}"</small>` : ''}</div>` : ''}
+                                ${r.status === 'pending'  ? `<div class="alert alert-info mt-2"><i class="fas fa-hourglass-half"></i> ${t('status_pending')}…</div>` : ''}
+                                <div style="display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;">
+                                    <a href="/announcement/${r.announcement_id}" class="btn btn-outline btn-sm" style="flex:1;"><i class="fas fa-eye"></i> ${t('view_trip_btn')}</a>
+                                    <button class="btn btn-outline btn-sm" style="flex:1;" onclick="openChatModal(${r.id})">
+                                        <i class="fas fa-comments"></i> ${t('chat_btn')}
+                                    </button>
+                                    ${fbLink ? `<a href="${UI.esc(fbLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm link-facebook"><i class="fab fa-facebook"></i></a>` : ''}
+                                    ${waLink ? `<a href="${UI.esc(waLink)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-whatsapp"><i class="fab fa-whatsapp"></i></a>` : ''}
+                                    ${r.status === 'pending' ? `<button class="btn btn-danger btn-sm" style="flex:1;" onclick="cancelRequest(${r.id})"><i class="fas fa-times"></i> ${t('cancel_request')}</button>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('')
+                }</div>`;
+            } catch (error) { container.innerHTML = `<div class="alert alert-error">${UI.esc(error.message)}</div>`; }
+        }
+
+        function openChatModal(reqId) {
+            const r = _reqMap[reqId];
+            if (!r) return;
+            chatRequestId = reqId;
+            const name = r.creator_name || t('organizer');
+            const phone = r.creator_phone || '';
+            const fbLink = r.creator_facebook_id
+                ? (r.creator_facebook_id.startsWith('http') ? r.creator_facebook_id : `https://facebook.com/${r.creator_facebook_id}`)
+                : null;
+            document.getElementById('chatModalTitle').innerHTML = `<i class="fas fa-comments"></i> ${t('chat_title')} — ${UI.esc(name)}`;
+            document.getElementById('chatProfilePanel').innerHTML = `
+                <div style="text-align:center; margin-bottom:1rem;">
+                    <div class="requester-avatar" style="margin:0 auto 0.5rem; width:52px; height:52px; font-size:1.3rem;">${UI.esc(name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div>
+                    <div style="font-weight:700; font-size:0.95rem;">${UI.esc(name)}</div>
+                    <div style="font-size:0.78rem; color:var(--text-secondary);">${t('trip_host')}</div>
+                </div>
+                ${phone ? `<div class="profile-row"><i class="fas fa-phone"></i><span>${UI.esc(phone)}</span></div>` : ''}
+                ${fbLink ? `<div class="profile-row"><a href="${UI.esc(fbLink)}" target="_blank" rel="noopener noreferrer" class="link-facebook"><i class="fab fa-facebook"></i> Facebook</a></div>` : ''}
+                ${phone ? `<div style="margin-top:0.75rem;"><a href="${UI.esc(UI.waLink(phone))}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-whatsapp" style="width:100%;font-size:0.8rem;"><i class="fab fa-whatsapp"></i> WhatsApp</a></div>` : ''}
+            `;
+            loadChatMessages(false);
+            openModal('chatModal');
+            startChatPolling();
+        }
+
+        async function loadChatMessages(scrollOnly) {
+            if (!chatRequestId) return;
+            try {
+                const msgs = await API.get(`/api/requests/${chatRequestId}/messages`);
+                const me = API.getUser();
+                const body = document.getElementById('chatMessagesBody');
+                const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+                if (msgs.length === 0) { body.innerHTML = `<div class="chat-empty">${t('chat_empty')}</div>`; return; }
+                body.innerHTML = msgs.map(m => {
+                    const mine = m.sender_id === me?.id;
+                    return `<div><div class="chat-bubble ${mine ? 'mine' : 'theirs'}">${escHtml(m.content)}<div class="chat-bubble-meta">${UI.formatRelative(m.created_at)}</div></div></div>`;
+                }).join('');
+                if (!scrollOnly || wasAtBottom) body.scrollTop = body.scrollHeight;
+            } catch (err) {
+                // Closed/blocked/deleted conversation (403/404): stop polling and
+                // show the (already translated) reason inside the chat body.
+                const closed = err.status === 403 || err.status === 404 || err.message === t('chat_closed');
+                if (closed) {
+                    stopChatPolling();
+                    const body = document.getElementById('chatMessagesBody');
+                    if (body) body.innerHTML = `<div class="alert alert-warning">${UI.esc(err.message)}</div>`;
+                }
+                // Transient/connection errors: keep polling silently.
+            }
+        }
+
+        async function sendChatMsg() {
+            const input = document.getElementById('chatInput');
+            const txt = input.value.trim();
+            if (!txt || !chatRequestId) return;
+            input.value = '';
+            try {
+                await API.post(`/api/requests/${chatRequestId}/messages`, { content: txt });
+                await loadChatMessages(false);
+            } catch (e) { UI.showAlert(e.message, 'error'); input.value = txt; }
+        }
+
+        function startChatPolling() { stopChatPolling(); chatPollTimer = setInterval(() => loadChatMessages(true), 5000); }
+        function stopChatPolling()  { if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; } }
+
+        // app.js calls window.__onModalClose() whenever ANY modal closes
+        // (overlay click, Escape, close button) — stop chat polling there.
+        window.__onModalClose = () => { if (typeof stopChatPolling === 'function') stopChatPolling(); };
+        function escHtml(str) { return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        // Deep-link: /my-requests?chat=<request_id> opens that chat (e.g. from a notification)
+        function _openChatFromUrl() {
+            const reqId = parseInt(new URLSearchParams(location.search).get('chat'), 10);
+            if (reqId && _reqMap[reqId]) openChatModal(reqId);
+        }
+
+        loadMyRequests().then(_openChatFromUrl);
+        document.addEventListener('localechange', () => loadMyRequests());
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>My Profile - Umrah Connect</title>
+    <meta name="i18n-title" content="title_profile">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="profile-page">
+        <div id="alertContainer"></div>
+
+        <!-- -- Profile Hero -- -->
+        <div class="profile-hero" id="profileHero">
+            <div class="profile-avatar-lg" id="heroAvatar">?</div>
+            <div class="profile-hero-info">
+                <h2 id="heroName" data-i18n="loading">Loading…</h2>
+                <p id="heroMeta"></p>
+            </div>
+        </div>
+
+        <!-- -- Tabs -- -->
+        <div class="profile-tabs">
+            <button class="profile-tab-btn active" onclick="switchTab('profile', this)">
+                <i class="fas fa-user-edit"></i> <span data-i18n="title_profile">My Profile</span>
+            </button>
+            <button class="profile-tab-btn" onclick="switchTab('notifications', this)" id="notifTabBtn">
+                <i class="fas fa-bell"></i> <span data-i18n="section_notifications_history">Notifications</span>
+                <span id="unreadBadgeTab" style="display:none; background:#e74c3c; color:#fff; border-radius:10px; font-size:0.7rem; padding:0.1rem 0.45rem; font-weight:700;"></span>
+            </button>
+        </div>
+
+        <!-- -- Tab: My Profile -- -->
+        <div class="profile-tab-panel active" id="panel-profile">
+            <div class="profile-form-card">
+                <form id="profileForm">
+
+                    <!-- Personal Info -->
+                    <p class="section-title"><i class="fas fa-user"></i> <span data-i18n="section_personal_info">Personal Information</span></p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_fullName" data-i18n="form_full_name">Full name *</label>
+                            <input type="text" id="p_fullName" required placeholder="As on passport/ID" maxlength="120" autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_email" data-i18n="form_email">Email</label>
+                            <input type="email" id="p_email" disabled style="opacity:0.6; cursor:not-allowed;">
+                            <small style="color:var(--text-secondary); font-size:0.75rem;" data-i18n="email_readonly_note">Email cannot be changed.</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_phone" data-i18n="form_phone">Phone number *</label>
+                            <input type="tel" id="p_phone" placeholder="01xxxxxxxxx or +20 1xxxxxxxxx" inputmode="tel" maxlength="24" autocomplete="tel">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_nationalId" data-i18n="form_national_id">National ID</label>
+                            <input type="text" id="p_nationalId" placeholder="14-digit National ID" inputmode="numeric" maxlength="14">
+                        </div>
+                    </div>
+
+                    <!-- Passport -->
+                    <p class="section-title"><i class="fas fa-passport"></i> <span data-i18n="section_passport_info">Passport Information</span></p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_passportNumber" data-i18n="form_passport">Passport number</label>
+                            <input type="text" id="p_passportNumber" placeholder="e.g. A12345678" autocapitalize="characters" maxlength="32">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_passportExpiry" data-i18n="form_passport_expiry">Passport expiry</label>
+                            <input type="date" id="p_passportExpiry">
+                        </div>
+                    </div>
+
+                    <!-- Facebook -->
+                    <p class="section-title"><i class="fab fa-facebook"></i> <span data-i18n="section_facebook_info">Facebook (Optional)</span></p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_facebookId" data-i18n="form_facebook">Facebook profile URL or ID</label>
+                            <input type="text" id="p_facebookId" placeholder="https://facebook.com/..." inputmode="url" maxlength="120">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_facebookName">Name on Facebook</label>
+                            <input type="text" id="p_facebookName" placeholder="Your Facebook display name" maxlength="120">
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <p class="section-title"><i class="fas fa-lock"></i> <span data-i18n="section_change_password">Change Password</span></p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_currentPassword" data-i18n="current_password">Current password</label>
+                            <div class="pw-field">
+                                <input type="password" id="p_currentPassword" placeholder="" autocomplete="current-password" maxlength="128">
+                                <button type="button" class="pw-toggle" aria-label="Show password"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="p_newPassword" data-i18n="new_password">New password (leave blank to keep)</label>
+                            <div class="pw-field">
+                                <input type="password" id="p_newPassword" placeholder="" autocomplete="new-password" minlength="8" maxlength="128">
+                                <button type="button" class="pw-toggle" aria-label="Show password"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p_confirmNewPassword" data-i18n="reset_password_confirm">Confirm password</label>
+                            <div class="pw-field">
+                                <input type="password" id="p_confirmNewPassword" placeholder="" autocomplete="new-password" minlength="8" maxlength="128">
+                                <button type="button" class="pw-toggle" aria-label="Show password"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; margin-top:1.25rem;">
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i> <span data-i18n="save_profile">Save Profile</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- -- Danger Zone: account deletion -- -->
+            <div class="profile-form-card" id="dangerZone" style="margin-top:1.5rem; border:1px solid #e74c3c;">
+                <p class="section-title" style="color:#e74c3c;">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                    <span data-i18n="section_danger_zone">Danger Zone</span>
+                </p>
+                <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;" data-i18n="delete_account_warning">
+                    Permanently delete your account. This cannot be undone.
+                </p>
+                <div class="form-group">
+                    <label for="deletePassword" data-i18n="current_password">Current password</label>
+                    <div class="pw-field">
+                        <input type="password" id="deletePassword" autocomplete="current-password" maxlength="128">
+                        <button type="button" class="pw-toggle" aria-label="Show password"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <button type="button" class="btn" id="deleteAccountBtn"
+                        style="background:#e74c3c; color:#fff; border-color:#e74c3c;">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    <span data-i18n="delete_account_btn">Delete my account</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- -- Tab: Notifications -- -->
+        <div class="profile-tab-panel" id="panel-notifications">
+            <div class="profile-form-card">
+                <div class="notif-history-toolbar">
+                    <span class="count-label" id="notifCountLabel" data-i18n="loading">Loading…</span>
+                    <button class="btn btn-outline" style="padding:0.45rem 1rem; font-size:0.85rem;" onclick="markAllReadHistory()">
+                        <i class="fas fa-check-double"></i> <span data-i18n="mark_all_read">Mark all read</span>
+                    </button>
+                </div>
+                <div id="notifHistoryList">
+                    <div class="notif-history-empty">
+                        <span class="empty-icon"><i class="fas fa-bell-slash"></i></span>
+                        <p data-i18n="loading">Loading…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        // -- Auth guard --
+        if (!API.isLoggedIn()) window.location.href = '/login';
+
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+
+        // -- Show/hide password toggles --
+        document.querySelectorAll('.pw-toggle').forEach((btn) => {
+            const input = btn.closest('.pw-field').querySelector('input');
+            btn.setAttribute('aria-label', t('show_password'));
+            btn.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.querySelector('i').className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+                btn.setAttribute('aria-label', t(show ? 'hide_password' : 'show_password'));
+            });
+        });
+
+        // -- Tab switching --
+        function switchTab(name, btn) {
+            document.querySelectorAll('.profile-tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            btn.classList.add('active');
+            if (name === 'notifications') loadNotifHistory();
+        }
+
+        // -- Load profile data --
+        async function loadProfile() {
+            try {
+                const data = await API.get('/api/me');
+                // Hero
+                const initials = (data.full_name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+                document.getElementById('heroAvatar').textContent = initials;
+                document.getElementById('heroName').textContent   = data.full_name || '';
+                const verifiedBadge = data.is_verified
+                    ? ` <span class="badge">${UI.esc(t('verified_label'))}</span>`
+                    : '';
+                document.getElementById('heroMeta').innerHTML =
+                    `${UI.esc(data.email)}${verifiedBadge}  •  ${UI.esc(t('member_since'))} ${UI.esc(data.member_since || '')}`;
+                // Fill form
+                document.getElementById('p_fullName').value      = data.full_name || '';
+                document.getElementById('p_email').value         = data.email || '';
+                document.getElementById('p_phone').value         = data.phone || '';
+                document.getElementById('p_nationalId').value    = data.national_id || '';
+                document.getElementById('p_passportNumber').value = data.passport_number || '';
+                document.getElementById('p_passportExpiry').value = data.passport_expiry || '';
+                document.getElementById('p_facebookId').value    = data.facebook_id || '';
+                document.getElementById('p_facebookName').value  = data.facebook_name || '';
+            } catch (e) {
+                showAlert(t('could_not_load_profile') + ': ' + e.message, 'error');
+            }
+        }
+
+        // -- Save profile --
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Client-side check: new password must match its confirmation (never sent to server)
+            const newPw     = document.getElementById('p_newPassword').value;
+            const confirmPw = document.getElementById('p_confirmNewPassword').value;
+            if (newPw && newPw !== confirmPw) {
+                showAlert(t('passwords_no_match'), 'error');
+                return;
+            }
+
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('saving_btn')}`;
+
+            try {
+                const payload = {
+                    full_name:        document.getElementById('p_fullName').value.trim(),
+                    phone:            document.getElementById('p_phone').value.trim(),
+                    national_id:      document.getElementById('p_nationalId').value.trim(),
+                    passport_number:  document.getElementById('p_passportNumber').value.trim(),
+                    passport_expiry:  document.getElementById('p_passportExpiry').value,
+                    facebook_id:      document.getElementById('p_facebookId').value.trim(),
+                    facebook_name:    document.getElementById('p_facebookName').value.trim(),
+                    current_password: document.getElementById('p_currentPassword').value,
+                    new_password:     document.getElementById('p_newPassword').value,
+                };
+
+                const result = await API.put('/api/me', payload);
+
+                // Update stored name
+                const user = API.getUser();
+                if (user) { user.full_name = result.full_name; API.setUser(user); }
+
+                // Refresh hero
+                document.getElementById('heroName').textContent = result.full_name;
+                const initials = result.full_name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+                document.getElementById('heroAvatar').textContent = initials;
+
+                // Clear password fields
+                document.getElementById('p_currentPassword').value    = '';
+                document.getElementById('p_newPassword').value        = '';
+                document.getElementById('p_confirmNewPassword').value = '';
+
+                showAlert(t('profile_saved'), 'success');
+            } catch (err) {
+                showAlert(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-save"></i> <span data-i18n="save_profile">${UI.esc(t('save_profile'))}</span>`;
+            }
+        });
+
+        // -- Danger Zone: delete account --
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            const pwInput = document.getElementById('deletePassword');
+            const pw = pwInput.value;
+            if (!pw) {
+                UI.showAlert(t('confirm_delete_account'), 'error');
+                pwInput.focus();
+                return;
+            }
+            if (!confirm(t('confirm_delete_account'))) return;
+
+            const btn = document.getElementById('deleteAccountBtn');
+            btn.disabled = true;
+            try {
+                await API.post('/api/me/delete', { password: pw });
+                API.clearToken();
+                localStorage.removeItem('umrah_refresh');
+                window.location = '/';
+            } catch (err) {
+                UI.showAlert(err.message, 'error');
+                btn.disabled = false;
+            }
+        });
+
+        // -- Notification history --
+        function notifIcon(type) {
+            const map = {
+                new_request: '🙋',
+                accepted:    '✅',
+                rejected:    '❌',
+                comment:     '💬',
+                new_message: '✉️',
+            };
+            return map[type] || '🔔';
+        }
+
+        function notifLabel(type) {
+            const map = {
+                new_request: 'notif_new_request',
+                accepted:    'notif_accepted',
+                rejected:    'notif_rejected',
+                comment:     'notif_comment',
+                new_message: 'notif_message',
+            };
+            return map[type] ? t(map[type]) : (type ? UI.esc(type) : t('notif_other'));
+        }
+
+        async function loadNotifHistory() {
+            const list = document.getElementById('notifHistoryList');
+            list.innerHTML = `<div class="notif-history-empty"><span class="empty-icon"><i class="fas fa-spinner fa-spin"></i></span><p>${t('loading')}</p></div>`;
+            try {
+                const data = await API.get('/api/notifications');
+                const items = data.items || [];
+                const unread = items.filter(n => !n.is_read).length;
+
+                document.getElementById('notifCountLabel').textContent =
+                    items.length === 0 ? t('no_notifications_title')
+                    : `${items.length} ${items.length !== 1 ? t('notifications_word') : t('notification_word')}${unread > 0 ? ` • ${unread} ${t('unread_word')}` : ''}`;
+
+                // Update tab badge
+                const badge = document.getElementById('unreadBadgeTab');
+                if (unread > 0) { badge.style.display = ''; badge.textContent = unread; }
+                else            { badge.style.display = 'none'; }
+
+                if (items.length === 0) {
+                    list.innerHTML = `
+                        <div class="notif-history-empty">
+                            <span class="empty-icon">🔔</span>
+                            <p style="font-weight:600; margin-bottom:0.25rem;">${t('no_notifications_title')}</p>
+                            <p style="font-size:0.85rem;">${t('no_notifications_subtitle')}</p>
+                        </div>`;
+                    return;
+                }
+
+                list.innerHTML = '<div class="notif-history-list">' + items.map(n => {
+                    const typeClass = UI.esc(n.notif_type ? n.notif_type.replace(/_/g, '_') : 'default');
+                    const unreadClass = !n.is_read ? 'unread' : '';
+                    return `
+                    <div class="notif-history-item ${unreadClass} type-${typeClass}"
+                         onclick="openNotif(${n.id}, '${UI.esc((n.link || '').replace(/'/g, "\\'"))}', this)">
+                        <div class="notif-history-icon type-${typeClass}">${notifIcon(n.notif_type)}</div>
+                        <div class="notif-history-body">
+                            <div class="notif-history-msg">${UI.esc(n.message)}</div>
+                            <div class="notif-history-meta">
+                                <span class="notif-type-badge ${typeClass}">${notifLabel(n.notif_type)}</span>
+                                <span><i class="fas fa-clock" style="margin-right:3px;"></i>${UI.formatRelative(n.created_at)}</span>
+                                ${!n.is_read ? '<span class="notif-unread-dot"></span>' : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('') + '</div>';
+            } catch (e) {
+                list.innerHTML = `<div class="notif-history-empty"><p>${t('could_not_load_notifs')}: ${UI.esc(e.message)}</p></div>`;
+            }
+        }
+
+        async function openNotif(id, link, el) {
+            // Mark as read
+            try { await API.post(`/api/notifications/${id}/read`, {}); } catch(e) {}
+            el.classList.remove('unread');
+            el.querySelector('.notif-unread-dot')?.remove();
+            Notifications.fetchCount(); // update bell badge
+            if (link) window.location.href = link;
+        }
+
+        async function markAllReadHistory() {
+            try {
+                await API.post('/api/notifications/read-all', {});
+                await loadNotifHistory();
+                Notifications.fetchCount();
+            } catch (e) { showAlert(t('could_not_mark_read'), 'error'); }
+        }
+
+        function showAlert(msg, type) {
+            const c = document.getElementById('alertContainer');
+            c.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : 'success'}" style="margin-bottom:1rem;">${UI.esc(msg)}</div>`;
+            setTimeout(() => { if (c.firstChild) c.firstChild.remove(); }, 5000);
+        }
+
+        // -- Init --
+        UI.updateNavbar();
+        loadProfile();
+
+        // Preload notification count for badge on tab
+        API.get('/api/notifications/unread-count').then(d => {
+            const badge = document.getElementById('unreadBadgeTab');
+            if (d.count > 0) { badge.style.display = ''; badge.textContent = d.count; }
+        }).catch(() => {});
+
+        // Re-render dynamic content (hero meta + notification history) on language toggle
+        document.addEventListener('localechange', () => {
+            loadProfile();
+            if (document.getElementById('panel-notifications')?.classList.contains('active')) {
+                loadNotifHistory();
+            }
+        });
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

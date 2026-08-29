@@ -1,0 +1,16 @@
+# Pinned to the versions actually running — see AGENTS.md §2 before changing anything.
+fastapi==0.135.2
+starlette==1.0.0
+uvicorn==0.42.0
+sqlalchemy==2.0.48
+python-jose[cryptography]==3.5.0
+passlib==1.7.4
+python-multipart==0.0.6
+jinja2==3.1.4
+aiofiles==23.2.1
+email-validator==2.3.0
+tzdata==2025.2  # IANA timezone data for zoneinfo (required on Windows)
+
+# Dev / test
+pytest==9.1.1
+httpx==0.28.1

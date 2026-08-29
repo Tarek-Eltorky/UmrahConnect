@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>Edit Trip - Umrah Connect</title>
+    <meta name="i18n-title" content="title_edit_trip">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <div class="card" style="max-width: 860px; margin: 0 auto;">
+            <div class="card-header">
+                <h2><i class="fas fa-edit"></i> <span data-i18n="title_edit_trip">Edit Trip</span></h2>
+                <p style="opacity:0.8;" id="editSubtitle" data-i18n="loading">Loading trip details...</p>
+            </div>
+            <div class="card-body">
+                <div id="alertContainer"></div>
+
+                <!-- Lock banner — shown when trip is full -->
+                <div id="fullBanner" class="alert" style="display:none; background:#fff3cd; border-left:4px solid #ffc107; color:#7a5000; margin-bottom:1.25rem;">
+                    <i class="fas fa-lock"></i> <strong data-i18n="trip_full_no_edit">This trip is full and can no longer be edited.</strong>
+                </div>
+
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="title"><i class="fas fa-heading"></i> <span data-i18n="trip_title_label">Trip Title *</span></label>
+                        <input type="text" id="title" required maxlength="120"
+                               data-i18n-placeholder="trip_title_placeholder" placeholder="e.g. Ramadan Omra Group 2026">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location_label">Location *</span></label>
+                        <select id="location" required>
+                            <option value="" data-i18n="select_location">Select location</option>
+                            <option value="Makkah" data-i18n="makkah_only">Makkah Only</option>
+                            <option value="Madinah" data-i18n="madinah_only">Madinah Only</option>
+                            <option value="Makkah/Madinah" data-i18n="both_cities">Makkah &amp; Madinah</option>
+                        </select>
+                    </div>
+
+                    <!-- -- Single-city (Makkah-only or Madinah-only) -- -->
+                    <div id="singleCitySection">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="departureDate"><i class="fas fa-calendar"></i> <span data-i18n="departure_date">Departure Date *</span></label>
+                                <input type="date" id="departureDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="returnDate"><i class="fas fa-calendar-check"></i> <span data-i18n="return_date_required">Return Date *</span></label>
+                                <input type="date" id="returnDate">
+                            </div>
+                        </div>
+                        <div id="durationDisplay" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem; display:none;">
+                            <i class="fas fa-moon"></i> <span id="durationText"></span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hotelName">
+                                    <span id="hotelCityIcon" aria-hidden="true">🏨</span>
+                                    <span id="hotelNameLabel" data-i18n="hotel_name_label">Hotel Name *</span>
+                                </label>
+                                <input type="text" id="hotelName" placeholder="e.g. Hilton Makkah" maxlength="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="hotelStars"><i class="fas fa-star"></i> <span data-i18n="hotel_stars_label">Hotel Stars *</span></label>
+                                <select id="hotelStars">
+                                    <option value="3" data-i18n="stars_3">3 Stars ★★★</option>
+                                    <option value="4" data-i18n="stars_4">4 Stars ★★★★</option>
+                                    <option value="5" data-i18n="stars_5">5 Stars ★★★★★</option>
+                                    <option value="2" data-i18n="stars_2">2 Stars ★★</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- -- Dual-city (Makkah & Madinah) -- -->
+                    <div id="dualCitySection" style="display:none;">
+                        <div class="city-stay-card">
+                            <div class="city-stay-header"><span>🕋</span> <span data-i18n="makkah_stay">Makkah Stay</span></div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="makkahCheckin"><i class="fas fa-sign-in-alt"></i> <span data-i18n="check_in">Check-in *</span></label>
+                                    <input type="date" id="makkahCheckin">
+                                </div>
+                                <div class="form-group">
+                                    <label for="makkahCheckout"><i class="fas fa-sign-out-alt"></i> <span data-i18n="check_out">Check-out *</span></label>
+                                    <input type="date" id="makkahCheckout">
+                                </div>
+                            </div>
+                            <div id="makkahDurationHint" class="city-duration-hint" style="display:none;"></div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="hotelNameMakkah"><i class="fas fa-hotel"></i> <span data-i18n="hotel_name_makkah">Makkah Hotel *</span></label>
+                                    <input type="text" id="hotelNameMakkah" placeholder="e.g. Sheraton Makkah" maxlength="120">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hotelStarsMakkah"><i class="fas fa-star"></i> <span data-i18n="stars_short">Stars</span></label>
+                                    <select id="hotelStarsMakkah">
+                                        <option value="3" data-i18n="stars_3">3 Stars ★★★</option>
+                                        <option value="4" data-i18n="stars_4">4 Stars ★★★★</option>
+                                        <option value="5" data-i18n="stars_5">5 Stars ★★★★★</option>
+                                        <option value="2" data-i18n="stars_2">2 Stars ★★</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="city-stay-card">
+                            <div class="city-stay-header"><span>🕌</span> <span data-i18n="madinah_stay">Madinah Stay</span></div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="madinahCheckin"><i class="fas fa-sign-in-alt"></i> <span data-i18n="check_in">Check-in *</span></label>
+                                    <input type="date" id="madinahCheckin">
+                                </div>
+                                <div class="form-group">
+                                    <label for="madinahCheckout"><i class="fas fa-sign-out-alt"></i> <span data-i18n="check_out">Check-out *</span></label>
+                                    <input type="date" id="madinahCheckout">
+                                </div>
+                            </div>
+                            <div id="madinahDurationHint" class="city-duration-hint" style="display:none;"></div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="hotelNameMadinah"><i class="fas fa-hotel"></i> <span data-i18n="hotel_name_madinah">Madinah Hotel *</span></label>
+                                    <input type="text" id="hotelNameMadinah" placeholder="e.g. Anwar Al Madinah Mövenpick" maxlength="120">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hotelStarsMadinah"><i class="fas fa-star"></i> <span data-i18n="stars_short">Stars</span></label>
+                                    <select id="hotelStarsMadinah">
+                                        <option value="3" data-i18n="stars_3">3 Stars ★★★</option>
+                                        <option value="4" data-i18n="stars_4">4 Stars ★★★★</option>
+                                        <option value="5" data-i18n="stars_5">5 Stars ★★★★★</option>
+                                        <option value="2" data-i18n="stars_2">2 Stars ★★</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="totalDurationHint" style="color:var(--primary-color); font-size:0.9rem; font-weight:600; margin-bottom:1rem; display:none;">
+                            <i class="fas fa-moon"></i> <span id="totalDurationText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Room config -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="roomType"><i class="fas fa-bed"></i> <span data-i18n="room_type_label">Room Type *</span></label>
+                            <select id="roomType" required>
+                                <option value="Double" data-i18n="room_double">Double (2 persons)</option>
+                                <option value="Triple" data-i18n="room_triple">Triple (3 persons)</option>
+                                <option value="Quad" data-i18n="room_quad">Quad (4 persons)</option>
+                                <option value="Single" data-i18n="room_single">Single (1 person)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="peoplePerRoom"><i class="fas fa-users"></i> <span data-i18n="people_per_room_label">People Per Room *</span></label>
+                            <input type="number" id="peoplePerRoom" required min="1" max="10" value="2" inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalRooms"><i class="fas fa-door-open"></i> <span data-i18n="total_rooms_label">Total Rooms Available *</span></label>
+                            <input type="number" id="totalRooms" required min="1" max="100" value="1" inputmode="numeric">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budgetPerPerson"><i class="fas fa-money-bill-wave"></i> <span data-i18n="budget_per_person_egp">Budget Per Person (EGP) *</span></label>
+                            <input type="number" id="budgetPerPerson" required min="0" placeholder="e.g. 25000" inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxParticipants">
+                                <i class="fas fa-user-friends"></i> <span data-i18n="max_participants_label">Max Participants *</span>
+                                <span id="participantsHint" style="font-size:0.78rem; color:var(--text-secondary); font-weight:400;"></span>
+                            </label>
+                            <input type="number" id="maxParticipants" required min="1" max="500" value="4" inputmode="numeric">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="includesTransport">
+                                <label for="includesTransport"><i class="fas fa-bus"></i> <span data-i18n="includes_transport_check">Includes Transportation</span></label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="includesMeals">
+                                <label for="includesMeals"><i class="fas fa-utensils"></i> <span data-i18n="includes_meals_check">Includes Meals</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description"><i class="fas fa-align-left"></i> <span data-i18n="description_label">Description *</span></label>
+                        <textarea id="description" rows="4" required maxlength="4000"
+                            data-i18n-placeholder="description_placeholder"
+                            placeholder="Describe your trip plan, itinerary, what's included..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requirements"><i class="fas fa-list-check"></i> <span data-i18n="requirements_optional">Requirements (Optional)</span></label>
+                        <textarea id="requirements" rows="3" maxlength="2000"
+                            data-i18n-placeholder="requirements_placeholder"
+                            placeholder="Any requirements for participants (e.g. families only, sisters only, etc.)"></textarea>
+                    </div>
+
+                    <div style="display:flex; gap:1rem;">
+                        <a href="/dashboard" class="btn btn-outline" style="flex:1;">
+                            <i class="fas fa-arrow-left"></i> <span data-i18n="cancel_btn">Cancel</span>
+                        </a>
+                        <button type="submit" class="btn btn-warning" style="flex:2;" id="saveBtn">
+                            <i class="fas fa-save"></i> <span data-i18n="save_changes_btn">Save Changes</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        if (!API.isLoggedIn()) window.location.href = '/login';
+
+        const TRIP_ID = {{ announcement_id }};
+        let spotsFilled = 0;
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+        const nightsWord = (n) => `${n} ${n === 1 ? t('night') : t('nights')}`;
+
+        // -- Helpers --
+        const today = new Date().toISOString().split('T')[0];
+
+        // Render an error into the alert container and bring it into view
+        function showFormError(html) {
+            const c = document.getElementById('alertContainer');
+            c.innerHTML = `<div class="alert alert-error">${html}</div>`;
+            c.scrollIntoView({ block: 'center' });
+        }
+
+        // Set min=today on date inputs — but never brick an existing past-dated trip:
+        // only apply when the current value is empty or already >= today.
+        function applyDateMins() {
+            ['departureDate', 'returnDate', 'makkahCheckin', 'makkahCheckout', 'madinahCheckin', 'madinahCheckout']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el.value || el.value >= today) el.min = today;
+                });
+            const dep = document.getElementById('departureDate').value;
+            if (dep && dep >= today) document.getElementById('returnDate').min = dep;
+            const mkIn = document.getElementById('makkahCheckin').value;
+            if (mkIn && mkIn >= today) document.getElementById('makkahCheckout').min = mkIn;
+            const mdIn = document.getElementById('madinahCheckin').value;
+            if (mdIn && mdIn >= today) document.getElementById('madinahCheckout').min = mdIn;
+        }
+        applyDateMins();
+
+        function nightsBetween(a, b) {
+            if (!a || !b) return null;
+            const diff = (new Date(b) - new Date(a)) / 86400000;
+            return diff > 0 ? diff : null;
+        }
+
+        function setSelectVal(id, val) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            for (let opt of el.options) { if (opt.value == val) { opt.selected = true; break; } }
+        }
+
+        function updateLocationUI() {
+            const loc = document.getElementById('location').value;
+            const isBoth = loc === 'Makkah/Madinah';
+            document.getElementById('singleCitySection').style.display = isBoth ? 'none' : '';
+            document.getElementById('dualCitySection').style.display   = isBoth ? ''     : 'none';
+
+            if (!isBoth) {
+                const cityIcon  = document.getElementById('hotelCityIcon');
+                const cityLabel = document.getElementById('hotelNameLabel');
+                const hotelInp  = document.getElementById('hotelName');
+                if (loc === 'Madinah') {
+                    cityIcon.textContent  = '🕌';
+                    cityLabel.textContent = t('hotel_name_madinah');
+                    hotelInp.placeholder  = 'e.g. Anwar Al Madinah Mövenpick';
+                } else if (loc === 'Makkah') {
+                    cityIcon.textContent  = '🕋';
+                    cityLabel.textContent = t('hotel_name_makkah');
+                    hotelInp.placeholder  = 'e.g. Hilton Makkah';
+                } else {
+                    cityIcon.textContent  = '🏨';
+                    cityLabel.textContent = t('hotel_name_label');
+                    hotelInp.placeholder  = 'Hotel name';
+                }
+            }
+        }
+
+        function updateDuration() {
+            const dep = document.getElementById('departureDate').value;
+            const ret = document.getElementById('returnDate').value;
+            const n = nightsBetween(dep, ret);
+            const el = document.getElementById('durationDisplay');
+            if (n) { el.style.display=''; document.getElementById('durationText').textContent = nightsWord(n); }
+            else    { el.style.display='none'; }
+        }
+
+        function updateCityDurationHint(inId, outId, hintId) {
+            const ci = document.getElementById(inId).value;
+            const co = document.getElementById(outId).value;
+            const n = nightsBetween(ci, co);
+            const el = document.getElementById(hintId);
+            if (n) { el.style.display=''; el.innerHTML = `<i class="fas fa-moon"></i> ${nightsWord(n)}`; }
+            else    { el.style.display='none'; }
+            updateTotalDurationHint();
+        }
+
+        function updateTotalDurationHint() {
+            const dates = ['makkahCheckin','makkahCheckout','madinahCheckin','madinahCheckout']
+                .map(id => document.getElementById(id).value).filter(Boolean).map(d => new Date(d));
+            const el = document.getElementById('totalDurationHint');
+            if (dates.length === 4) {
+                const n = Math.round((Math.max(...dates) - Math.min(...dates)) / 86400000);
+                if (n > 0) {
+                    el.style.display='';
+                    document.getElementById('totalDurationText').textContent = `${t('total_trip')}: ${nightsWord(n)}`;
+                    return;
+                }
+            }
+            el.style.display='none';
+        }
+
+        // -- Load trip data into form --
+        async function loadTrip() {
+            try {
+                const d = await API.get(`/api/announcements/${TRIP_ID}`);
+
+                // Check ownership
+                const me = API.getUser();
+                if (d.creator_id !== me?.id) {
+                    document.getElementById('alertContainer').innerHTML =
+                        `<div class="alert alert-error"><i class="fas fa-ban"></i> ${t('not_owner_trip')}</div>`;
+                    document.getElementById('editForm').style.display = 'none';
+                    return;
+                }
+
+                spotsFilled = d.spots_filled || 0;
+                const maxP  = d.max_participants || 0;
+                const isFull = spotsFilled >= maxP;
+
+                document.getElementById('editSubtitle').textContent =
+                    `${d.spots_filled}/${d.max_participants} ${t('spots_filled_count')}${isFull ? ' • ' + t('full_label') + ' • ' + t('editing_locked') : ''}`;
+                document.getElementById('participantsHint').textContent =
+                    `(${t('currently_joined').replace('{n}', spotsFilled)})`;
+
+                if (isFull) {
+                    document.getElementById('fullBanner').style.display = '';
+                    document.querySelectorAll('#editForm input, #editForm select, #editForm textarea, #saveBtn')
+                        .forEach(el => el.disabled = true);
+                }
+
+                // Fill form
+                document.getElementById('title').value = d.title || '';
+                setSelectVal('location', d.location);
+                updateLocationUI();
+
+                if (d.location === 'Makkah/Madinah') {
+                    document.getElementById('makkahCheckin').value   = d.makkah_checkin  || '';
+                    document.getElementById('makkahCheckout').value  = d.makkah_checkout || '';
+                    document.getElementById('madinahCheckin').value  = d.madinah_checkin  || '';
+                    document.getElementById('madinahCheckout').value = d.madinah_checkout || '';
+                    document.getElementById('hotelNameMakkah').value = d.hotel_name || '';
+                    setSelectVal('hotelStarsMakkah', d.hotel_stars || 3);
+                    document.getElementById('hotelNameMadinah').value = d.hotel_name_madinah || '';
+                    setSelectVal('hotelStarsMadinah', d.hotel_stars_madinah || 3);
+                    updateCityDurationHint('makkahCheckin','makkahCheckout','makkahDurationHint');
+                    updateCityDurationHint('madinahCheckin','madinahCheckout','madinahDurationHint');
+                } else {
+                    document.getElementById('departureDate').value = d.departure_date || '';
+                    document.getElementById('returnDate').value    = d.return_date    || '';
+                    document.getElementById('hotelName').value     = d.hotel_name || '';
+                    setSelectVal('hotelStars', d.hotel_stars || 3);
+                    updateDuration();
+                }
+
+                setSelectVal('roomType', d.room_type);
+                document.getElementById('peoplePerRoom').value    = d.people_per_room || 2;
+                document.getElementById('totalRooms').value       = d.total_rooms_available || 1;
+                document.getElementById('budgetPerPerson').value  = d.budget_per_person || '';
+                document.getElementById('maxParticipants').value  = d.max_participants || 4;
+                document.getElementById('includesTransport').checked = !!d.includes_transport;
+                document.getElementById('includesMeals').checked     = !!d.includes_meals;
+                document.getElementById('description').value      = d.description || '';
+                document.getElementById('requirements').value     = d.requirements || '';
+
+                // Re-apply date minimums now that existing values are loaded
+                applyDateMins();
+
+            } catch (e) {
+                document.getElementById('alertContainer').innerHTML =
+                    `<div class="alert alert-error">${t('could_not_load_trip')}: ${UI.esc(e.message)}</div>`;
+            }
+        }
+
+        // -- Event listeners --
+        document.getElementById('location').addEventListener('change', updateLocationUI);
+        document.getElementById('departureDate').addEventListener('change', updateDuration);
+        document.getElementById('returnDate').addEventListener('change', updateDuration);
+
+        // Chain date minimums: later dates cannot precede earlier ones
+        document.getElementById('departureDate').addEventListener('change', (e) => {
+            document.getElementById('returnDate').min = e.target.value || today;
+        });
+        document.getElementById('makkahCheckin').addEventListener('change', (e) => {
+            document.getElementById('makkahCheckout').min = e.target.value || today;
+        });
+        document.getElementById('madinahCheckin').addEventListener('change', (e) => {
+            document.getElementById('madinahCheckout').min = e.target.value || today;
+        });
+
+        document.getElementById('makkahCheckin').addEventListener('change',  () => updateCityDurationHint('makkahCheckin','makkahCheckout','makkahDurationHint'));
+        document.getElementById('makkahCheckout').addEventListener('change', () => updateCityDurationHint('makkahCheckin','makkahCheckout','makkahDurationHint'));
+        document.getElementById('madinahCheckin').addEventListener('change',  () => updateCityDurationHint('madinahCheckin','madinahCheckout','madinahDurationHint'));
+        document.getElementById('madinahCheckout').addEventListener('change', () => updateCityDurationHint('madinahCheckin','madinahCheckout','madinahDurationHint'));
+
+        // -- Submit --
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loc    = document.getElementById('location').value;
+            const isBoth = loc === 'Makkah/Madinah';
+
+            if (!loc) {
+                showFormError(t('err_select_location'));
+                return;
+            }
+
+            let dep = '', ret = '';
+            let makkah_checkin = '', makkah_checkout = '', madinah_checkin = '', madinah_checkout = '';
+
+            if (isBoth) {
+                makkah_checkin  = document.getElementById('makkahCheckin').value;
+                makkah_checkout = document.getElementById('makkahCheckout').value;
+                madinah_checkin  = document.getElementById('madinahCheckin').value;
+                madinah_checkout = document.getElementById('madinahCheckout').value;
+                if (!makkah_checkin || !makkah_checkout || !madinah_checkin || !madinah_checkout) {
+                    showFormError(t('err_fill_city_dates'));
+                    return;
+                }
+                if (makkah_checkout <= makkah_checkin) {
+                    showFormError(t('err_makkah_dates'));
+                    return;
+                }
+                if (madinah_checkout <= madinah_checkin) {
+                    showFormError(t('err_madinah_dates'));
+                    return;
+                }
+            } else {
+                dep = document.getElementById('departureDate').value;
+                ret = document.getElementById('returnDate').value;
+                if (!dep || !ret) {
+                    showFormError(t('err_fill_dates'));
+                    return;
+                }
+                if (ret <= dep) {
+                    showFormError(t('err_return_after_dep'));
+                    return;
+                }
+            }
+
+            const newMax = parseInt(document.getElementById('maxParticipants').value);
+            if (newMax < spotsFilled) {
+                showFormError(`${t('err_max_lt_filled')} (${spotsFilled})`);
+                return;
+            }
+
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('saving_btn')}`;
+
+            try {
+                await API.put(`/api/announcements/${TRIP_ID}`, {
+                    title:                document.getElementById('title').value,
+                    location:             loc,
+                    departure_date:       dep,
+                    return_date:          ret,
+                    hotel_name:           isBoth
+                                            ? document.getElementById('hotelNameMakkah').value
+                                            : document.getElementById('hotelName').value,
+                    hotel_stars:          isBoth
+                                            ? parseInt(document.getElementById('hotelStarsMakkah').value)
+                                            : parseInt(document.getElementById('hotelStars').value),
+                    hotel_name_madinah:   document.getElementById('hotelNameMadinah')?.value || '',
+                    hotel_stars_madinah:  parseInt(document.getElementById('hotelStarsMadinah')?.value || '3'),
+                    makkah_checkin,
+                    makkah_checkout,
+                    madinah_checkin,
+                    madinah_checkout,
+                    room_type:            document.getElementById('roomType').value,
+                    people_per_room:      parseInt(document.getElementById('peoplePerRoom').value),
+                    total_rooms_available: parseInt(document.getElementById('totalRooms').value),
+                    budget_per_person:    parseFloat(document.getElementById('budgetPerPerson').value),
+                    includes_transport:   document.getElementById('includesTransport').checked,
+                    includes_meals:       document.getElementById('includesMeals').checked,
+                    description:          document.getElementById('description').value,
+                    requirements:         document.getElementById('requirements').value,
+                    max_participants:     newMax
+                });
+
+                window.location.href = `/announcement/${TRIP_ID}`;
+
+            } catch (err) {
+                showFormError(UI.esc(err.message));
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-save"></i> ${t('save_changes_btn')}`;
+            }
+        });
+
+        UI.updateNavbar();
+        loadTrip();
+
+        // Re-render dynamic labels (subtitle, hints) on language toggle
+        document.addEventListener('localechange', () => loadTrip());
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>

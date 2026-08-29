@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1a5f4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Umrah Connect">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <title>Login - Umrah Connect</title>
+    <meta name="i18n-title" content="login_title">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="/static/css/style.css?v=16">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🕋</span>
+            <span>Umrah Connect</span>
+        </a>
+        <button class="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links"></div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span data-i18n="login_title">Welcome Back</span></h2>
+                <p data-i18n="login_subtitle">Login to continue your journey</p>
+            </div>
+            <div class="auth-body">
+                <div id="alertContainer"></div>
+
+                <form id="loginForm" autocomplete="on">
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope" aria-hidden="true"></i> <span data-i18n="form_email">Email</span></label>
+                        <input type="email" id="email" required
+                               placeholder="your@email.com"
+                               autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"
+                               maxlength="120">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock" aria-hidden="true"></i> <span data-i18n="form_password">Password</span></label>
+                        <div class="pw-field">
+                            <input type="password" id="password" required
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password" maxlength="128">
+                            <button type="button" class="pw-toggle" aria-label="Show password"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span data-i18n="login_button">Login</span>
+                    </button>
+                </form>
+
+                <p class="text-center mt-2">
+                    <a href="/reset-password" data-i18n="forgot_password">Forgot password?</a>
+                </p>
+
+                <p class="text-center mt-3">
+                    <span data-i18n="no_account">Don't have an account?</span>
+                    <a href="/register" data-i18n="nav_register">Register</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js?v=9"></script><script src="/static/js/app.js?v=20"></script>
+    <script>
+        if (API.isLoggedIn()) window.location.href = '/dashboard';
+
+        const t = (k) => (window.I18N ? I18N.t(k) : k);
+
+        // Show/hide password toggle
+        document.querySelectorAll('.pw-toggle').forEach((btn) => {
+            const input = btn.closest('.pw-field').querySelector('input');
+            btn.setAttribute('aria-label', t('show_password'));
+            btn.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.querySelector('i').className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+                btn.setAttribute('aria-label', t(show ? 'hide_password' : 'show_password'));
+            });
+        });
+
+        // Show session-expired banner if redirected here from a 401
+        const urlParams = new URLSearchParams(location.search);
+        if (urlParams.get('session_expired') === '1') {
+            const msg = (window.I18N ? I18N.t('session_expired') : 'Your session has expired. Please sign in again.');
+            document.getElementById('alertContainer').innerHTML =
+                `<div class="alert alert-info">${msg}</div>`;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${UI.esc(t('logging_in'))}`;
+
+            try {
+                const data = await API.post('/api/login', {
+                    email:    document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                });
+
+                API.setToken(data.token);
+                API.setUser(data.user);
+                // If we were redirected here from a protected page, send the user back to it.
+                const params = new URLSearchParams(location.search);
+                const next = params.get('next');
+                window.location.href = next && next.startsWith('/') ? next : '/dashboard';
+
+            } catch (error) {
+                document.getElementById('alertContainer').innerHTML =
+                    `<div class="alert alert-error">${UI.esc(error.message)}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span data-i18n="login_button">${UI.esc(t('login_button'))}</span>`;
+            }
+        });
+    </script>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav-bar" id="mobileNavBar"></nav>
+</body>
+</html>
